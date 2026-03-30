@@ -200,8 +200,13 @@ program
       }
     });
 
-    await session.page.reload({ waitUntil: "networkidle", timeout: config.sync.navigationTimeoutMs });
-    await session.page.waitForTimeout(3000);
+    await session.page.reload({ waitUntil: "domcontentloaded", timeout: config.sync.navigationTimeoutMs });
+
+    // Wait for the mas response to arrive
+    const masDeadline = Date.now() + config.sync.navigationTimeoutMs;
+    while (!intercepted && Date.now() < masDeadline) {
+      await session.page.waitForTimeout(1000);
+    }
 
     if (intercepted) {
       try {

@@ -85,12 +85,15 @@ export async function pull(
       }
     });
 
-    // Navigate to saved places — checkSession already navigated,
-    // but we may need to reload to capture the intercepted response.
-    // The mas request may have already fired during checkSession.
-    // Reload to ensure we capture it.
-    await page.reload({ waitUntil: "networkidle", timeout: config.sync.navigationTimeoutMs });
-    await page.waitForTimeout(3000);
+    // Reload to capture the mas request/response via our interceptors.
+    // Use domcontentloaded (not networkidle) — Google Maps SPA never goes idle.
+    await page.reload({ waitUntil: "domcontentloaded", timeout: config.sync.navigationTimeoutMs });
+
+    // Wait for the mas response to arrive (up to navigationTimeout)
+    const masDeadline = Date.now() + config.sync.navigationTimeoutMs;
+    while (!masRaw && Date.now() < masDeadline) {
+      await page.waitForTimeout(1000);
+    }
 
     if (!sessionToken) {
       console.error("  Failed to extract session token from mas request.");
