@@ -14,3 +14,5 @@ Vagrantfile
 !.vm/worktree-setup.sh
 # END agent-sandbox managed
 .worktrees/
+node_modules/
+dist/
