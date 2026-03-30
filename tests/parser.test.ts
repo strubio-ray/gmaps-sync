@@ -36,7 +36,7 @@ describe("parseLists", () => {
 
     // First list: "Want to go"
     expect(result[0]).toEqual({
-      id: "1x5yjcIYJ3nW-DmNRQr9BuNTu9ig",
+      id: "FAKE_PLID_0010_XXXXXXXXXXXXX",
       name: "Want to go",
       type: 3,
       count: 35,
@@ -72,11 +72,11 @@ describe("parsePlaces", () => {
     // First place: Marquis II
     expect(result[0]).toEqual({
       name: "Marquis II",
-      lat: 29.7252297,
-      lng: -95.4200982,
-      address: "Marquis II, 2631 Bissonnet St, Houston, TX 77005",
+      lat: 39.73,
+      lng: -85.42,
+      address: "Marquis II, 101 Birch St, Faketown, CA 90210",
       comment: "",
-      placeId: "-8772799911369865815_-4757512616063040366",
+      placeId: "-0000000000000000002_-0000000000000000003",
     });
   });
 
