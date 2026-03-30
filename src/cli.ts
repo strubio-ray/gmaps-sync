@@ -54,8 +54,12 @@ program
   .command("pull")
   .description("Pull saved places from Google Maps")
   .option("--profile <name>", "Profile name", "default")
-  .action(async (opts: { profile: string }) => {
+  .option("--headed", "Run browser in headed mode for debugging", false)
+  .action(async (opts: { profile: string; headed: boolean }) => {
     const config = loadConfig();
+    if (opts.headed) {
+      config.headless = false;
+    }
     const { browserProfileDir, store } = getStore(opts.profile);
 
     // Jitter: random delay when run by scheduler (non-TTY)
