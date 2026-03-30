@@ -13,3 +13,4 @@ Vagrantfile
 !.vm/worktree-files.yml
 !.vm/worktree-setup.sh
 # END agent-sandbox managed
+.worktrees/
