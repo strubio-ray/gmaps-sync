@@ -123,25 +123,34 @@ export function parsePlaces(raw: string): ParsedPlace[] {
   const json = JSON.parse(stripXssiPrefix(raw));
   const entries = walkPath(json, schema.places.root);
   if (!Array.isArray(entries)) {
-    throw new Error(
-      `places.root: expected array at ${schema.places.root}, got ${typeof entries}`,
-    );
+    // Empty list — no entries to parse
+    return [];
   }
 
-  return entries.map((entry: unknown, i: number) => {
-    const e = schema.places.entry;
-    const idPart1 = walkPathRequired(entry, e.placeIdPart1, `places[${i}].placeIdPart1`, "string") as string;
-    const idPart2 = walkPathRequired(entry, e.placeIdPart2, `places[${i}].placeIdPart2`, "string") as string;
+  const e = schema.places.entry;
+  const results: ParsedPlace[] = [];
 
-    return {
+  for (let i = 0; i < entries.length; i++) {
+    const entry = entries[i];
+    const idPart1 = walkPath(entry, e.placeIdPart1);
+    const idPart2 = walkPath(entry, e.placeIdPart2);
+
+    // Skip entries without a valid ID pair (e.g., custom pins)
+    if (typeof idPart1 !== "string" || typeof idPart2 !== "string") {
+      continue;
+    }
+
+    results.push({
       name: walkPathRequired(entry, e.name, `places[${i}].name`, "string") as string,
       lat: walkPathRequired(entry, e.lat, `places[${i}].lat`, "number") as number,
       lng: walkPathRequired(entry, e.lng, `places[${i}].lng`, "number") as number,
       address: (walkPathRequired(entry, e.address, `places[${i}].address`) ?? "") as string,
       comment: walkPathRequired(entry, e.comment, `places[${i}].comment`) as string | null,
       placeId: `${idPart1}_${idPart2}`,
-    };
-  });
+    });
+  }
+
+  return results;
 }
 
 export function getSchemaVersion(): number {
