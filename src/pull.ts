@@ -1,4 +1,4 @@
-import { parseLists, parsePlaces, getSchemaVersion } from "./parser.js";
+import { parseLists, parsePlaces, getSchemaVersion, extractSessionToken } from "./parser.js";
 import { applyDiff, type DiffResult } from "./diff.js";
 import type { Store } from "./store.js";
 import { checkSession } from "./session.js";
@@ -9,9 +9,16 @@ import {
 } from "./notifications.js";
 import type { AppConfig, ParsedList, ParsedPlace, SyncState } from "./types.js";
 
+const GETLIST_BASE = "https://www.google.com/maps/preview/entitylist/getlist";
+
 function randomDelay(range: [number, number]): Promise<void> {
   const ms = Math.floor(Math.random() * (range[1] - range[0] + 1)) + range[0];
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function buildGetlistUrl(listId: string, listType: number, sessionToken: string): string {
+  const pb = `!1m4!1s${listId}!2e1!3m1!1e1!2e2!3e${listType}!4i500!6m3!1s${sessionToken}!7e81!28e2!8i3!16b1`;
+  return `${GETLIST_BASE}?authuser=0&hl=en&gl=us&pb=${pb}`;
 }
 
 export interface PullResult {
@@ -54,46 +61,57 @@ export async function pull(
   const { context, page } = session;
 
   try {
-    // --- Phase 1: Fetch list metadata ---
+    // --- Phase 1: Intercept mas response for list metadata and session token ---
     console.log("Phase 1: Fetching list metadata...");
 
-    let listsRaw: string | null = null;
+    let masRaw: string | null = null;
+    let sessionToken: string | null = null;
+
+    page.on("request", (request) => {
+      const url = request.url();
+      if (url.includes("locationhistory/preview/mas")) {
+        sessionToken = extractSessionToken(url);
+      }
+    });
+
     page.on("response", async (response) => {
       const url = response.url();
-      if (url.includes("/maps/saved") && response.status() === 200) {
+      if (url.includes("locationhistory/preview/mas") && response.status() === 200) {
         try {
-          const text = await response.text();
-          if (text.startsWith(")]}'")) {
-            listsRaw = text;
-          }
+          masRaw = await response.text();
         } catch {
           // Response may not be text
         }
       }
     });
 
-    await page.goto("https://www.google.com/maps/saved", {
-      waitUntil: "networkidle",
-      timeout: config.sync.navigationTimeoutMs,
-    });
-
+    // Navigate to saved places — checkSession already navigated,
+    // but we may need to reload to capture the intercepted response.
+    // The mas request may have already fired during checkSession.
+    // Reload to ensure we capture it.
+    await page.reload({ waitUntil: "networkidle", timeout: config.sync.navigationTimeoutMs });
     await page.waitForTimeout(3000);
 
+    if (!sessionToken) {
+      console.error("  Failed to extract session token from mas request.");
+      return { success: false, error: "No session token", listsProcessed: 0, listsFailed: 0 };
+    }
+
     let remoteLists: ParsedList[] = [];
-    if (listsRaw) {
+    if (masRaw) {
       try {
-        remoteLists = parseLists(listsRaw);
-        await store.saveSnapshot("lists", listsRaw);
+        remoteLists = parseLists(masRaw);
+        await store.saveSnapshot("mas", masRaw);
         console.log(`  Found ${remoteLists.length} lists.`);
       } catch (error) {
         console.error("  Failed to parse list metadata:", error);
-        await store.saveSnapshot("lists-error", listsRaw);
+        await store.saveSnapshot("mas-error", masRaw);
       }
     } else {
-      console.warn("  No list metadata response intercepted.");
+      console.warn("  No mas response intercepted.");
     }
 
-    // --- Phase 2: Fetch each list's places ---
+    // --- Phase 2: Fetch each list's places via getlist ---
     console.log("Phase 2: Fetching places for each list...");
 
     const allPlaces: ParsedPlace[] = [];
@@ -101,70 +119,34 @@ export async function pull(
     let listsProcessed = 0;
     let listsFailed = 0;
 
-    for (const list of remoteLists) {
+    // Filter to lists with an ID (built-in lists with null ID can't be fetched via getlist)
+    const fetchableLists = remoteLists.filter((l) => l.id !== null);
+
+    for (const list of fetchableLists) {
       console.log(`  Processing list: ${list.name} (${list.id})...`);
 
       await randomDelay(config.sync.delayBetweenListsMs);
 
-      const placesRaw: string[] = [];
-
-      const responseHandler = async (response: { url: () => string; status: () => number; text: () => Promise<string> }) => {
-        const url = response.url();
-        if (
-          (url.includes("entitylist/getlist") || url.includes("/maps/saved/list/")) &&
-          response.status() === 200
-        ) {
-          try {
-            const text = await response.text();
-            if (text.startsWith(")]}'")) {
-              placesRaw.push(text);
-            }
-          } catch {
-            // Response may not be text
-          }
-        }
-      };
-
-      page.on("response", responseHandler);
-
       try {
-        await page.goto(`https://www.google.com/maps/saved/list/${list.id}`, {
-          waitUntil: "networkidle",
-          timeout: config.sync.navigationTimeoutMs,
-        });
-        await page.waitForTimeout(3000);
+        const getlistUrl = buildGetlistUrl(list.id!, list.type, sessionToken);
 
-        // Scroll to load more if needed
-        let previousCount = 0;
-        for (let scrollAttempt = 0; scrollAttempt < 10; scrollAttempt++) {
-          await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
-          await page.waitForTimeout(2000);
-          if (placesRaw.length === previousCount) break;
-          previousCount = placesRaw.length;
-        }
+        const rawResponse = await page.evaluate(async (url: string) => {
+          const res = await fetch(url, { credentials: "include" });
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.text();
+        }, getlistUrl);
 
-        const listPlaces: ParsedPlace[] = [];
-        for (const raw of placesRaw) {
-          try {
-            const parsed = parsePlaces(raw);
-            listPlaces.push(...parsed);
-            await store.saveSnapshot(list.id, raw);
-          } catch (error) {
-            console.error(`    Parse error for list ${list.name}:`, error);
-            await store.saveSnapshot(`${list.id}-error`, raw);
-          }
-        }
+        const listPlaces = parsePlaces(rawResponse);
+        await store.saveSnapshot(list.id!, rawResponse);
 
         const placeIds = listPlaces.map((p) => p.placeId);
-        listPlaceMap.set(list.id, placeIds);
+        listPlaceMap.set(list.id!, placeIds);
         allPlaces.push(...listPlaces);
         listsProcessed++;
         console.log(`    Found ${listPlaces.length} places.`);
       } catch (error) {
         console.error(`  Failed to process list ${list.name}:`, error);
         listsFailed++;
-      } finally {
-        page.removeListener("response", responseHandler);
       }
     }
 
@@ -179,7 +161,7 @@ export async function pull(
 
     const diff = await applyDiff(
       store,
-      remoteLists,
+      remoteLists.filter((l) => l.id !== null) as ParsedList[],
       Array.from(uniquePlaces.values()),
       listPlaceMap,
     );
@@ -189,7 +171,7 @@ export async function pull(
     );
 
     // --- Update sync state ---
-    const allFailed = remoteLists.length > 0 && listsFailed === remoteLists.length;
+    const allFailed = fetchableLists.length > 0 && listsFailed === fetchableLists.length;
     const status = allFailed ? "failure" : listsFailed > 0 ? "partial" : "success";
 
     const syncState: SyncState = {
