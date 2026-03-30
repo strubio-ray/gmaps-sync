@@ -44,19 +44,12 @@ export interface SyncConfig {
   jitterMinutes: number;
   delayBetweenListsMs: [number, number];
   navigationTimeoutMs: number;
-  retryOnSessionFailure: boolean;
-}
-
-export interface NotificationsConfig {
-  onSessionExpired: boolean;
-  onSchemaFailure: boolean;
-  onSyncComplete: boolean;
+  maxConsecutiveFailures: number;
 }
 
 export interface AppConfig {
   profiles: Record<string, ProfileConfig>;
   sync: SyncConfig;
-  notifications: NotificationsConfig;
   headless: boolean;
   useSystemChrome: boolean;
   snapshotsRetentionDays: number;
