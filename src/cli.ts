@@ -7,7 +7,6 @@ import { loadConfig, resolveProfilePaths, BASE_DIR } from "./config.js";
 import { Store } from "./store.js";
 import { initSession, checkSession } from "./session.js";
 import { pull } from "./pull.js";
-import { enrichPlaces } from "./enrich.js";
 import { parseLists } from "./parser.js";
 import { installSchedule, uninstallSchedule } from "./scheduling.js";
 
@@ -100,46 +99,6 @@ program
     console.log(`Consecutive failures: ${syncState.consecutiveFailures}`);
     console.log(`Lists: ${lists.filter((l) => !l.removedRemote).length} active, ${lists.filter((l) => l.removedRemote).length} removed`);
     console.log(`Places: ${placeIds.length} total`);
-  });
-
-// --- enrich ---
-program
-  .command("enrich")
-  .description("Enrich places via Google Places API")
-  .option("--profile <name>", "Profile name", "default")
-  .option("--all", "Enrich all places")
-  .option("--list <id>", "Enrich places in a specific list")
-  .option("--place <id>", "Enrich a specific place")
-  .option("--force", "Re-enrich already enriched places", false)
-  .action(async (opts: { profile: string; all?: boolean; list?: string; place?: string; force: boolean }) => {
-    const config = loadConfig();
-    const apiKey = config.enrichment.googlePlacesApiKey;
-    if (!apiKey) {
-      console.error("No Google Places API key configured.");
-      console.error("Set enrichment.googlePlacesApiKey in ~/.gmaps-sync/config.json");
-      process.exitCode = 1;
-      return;
-    }
-
-    const { store } = getStore(opts.profile);
-    let placeIds: string[];
-
-    if (opts.place) {
-      placeIds = [opts.place];
-    } else if (opts.list) {
-      const places = await store.readAllPlaces();
-      placeIds = places
-        .filter((p) => p.lists.includes(opts.list!))
-        .map((p) => p.id);
-    } else {
-      placeIds = await store.listPlaceIds();
-    }
-
-    console.log(`Enriching ${placeIds.length} places...`);
-    const result = await enrichPlaces(store, apiKey, placeIds, opts.force);
-    console.log(
-      `Done: ${result.enriched} enriched, ${result.skipped} skipped, ${result.failed} failed.`,
-    );
   });
 
 // --- prune ---
