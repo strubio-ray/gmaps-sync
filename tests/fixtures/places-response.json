@@ -1,0 +1,21 @@
+{
+  "raw": ")]}'\n[[null,null,null,null,null,null,null,null,[[null,[\"https://www.google.com/maps/place/Empire+Cafe\",\"ChIJ_abc123\",null,null,null,[null,null,29.7504,-95.3698]],\"Empire Café\",\"Great breakfast tacos\",null],[null,[\"https://www.google.com/maps/place/Uchi+Houston\",\"ChIJ_def456\",null,null,null,[null,null,29.7383,-95.3907]],\"Uchi Houston\",null,null]]]]",
+  "expectedPlaces": [
+    {
+      "name": "Empire Café",
+      "lat": 29.7504,
+      "lng": -95.3698,
+      "googleMapsUrl": "https://www.google.com/maps/place/Empire+Cafe",
+      "comment": "Great breakfast tacos",
+      "placeId": "ChIJ_abc123"
+    },
+    {
+      "name": "Uchi Houston",
+      "lat": 29.7383,
+      "lng": -95.3907,
+      "googleMapsUrl": "https://www.google.com/maps/place/Uchi+Houston",
+      "comment": null,
+      "placeId": "ChIJ_def456"
+    }
+  ]
+}

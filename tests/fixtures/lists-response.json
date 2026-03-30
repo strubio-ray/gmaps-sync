@@ -1,0 +1,8 @@
+{
+  "raw": ")]}'\n[[null,[[\"list_abc123\",\"Want to go\",\"WANT_TO_GO\",35],[\"list_def456\",\"Favorites\",\"FAVORITES\",12],[\"list_ghi789\",\"Travel\",\"CUSTOM\",8]]]]",
+  "expectedLists": [
+    { "id": "list_abc123", "name": "Want to go", "type": "WANT_TO_GO", "count": 35 },
+    { "id": "list_def456", "name": "Favorites", "type": "FAVORITES", "count": 12 },
+    { "id": "list_ghi789", "name": "Travel", "type": "CUSTOM", "count": 8 }
+  ]
+}

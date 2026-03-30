@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "responsePrefix": ")]}'\\n",
+  "lists": {
+    "root": "[0]",
+    "entries": "[0][1]",
+    "entry": {
+      "id": "[0]",
+      "name": "[1]",
+      "type": "[2]",
+      "count": "[3]"
+    }
+  },
+  "places": {
+    "root": "[0]",
+    "entries": "[0][8]",
+    "entry": {
+      "name": "[2]",
+      "lat": "[1][5][2]",
+      "lng": "[1][5][3]",
+      "googleMapsUrl": "[1][0]",
+      "comment": "[3]",
+      "placeId": "[1][1]"
+    }
+  }
+}
