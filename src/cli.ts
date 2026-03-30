@@ -193,20 +193,14 @@ program
     let intercepted: string | null = null;
     session.page.on("response", async (response) => {
       const url = response.url();
-      if (url.includes("/maps/saved") && response.status() === 200) {
+      if (url.includes("locationhistory/preview/mas") && response.status() === 200) {
         try {
-          const text = await response.text();
-          if (text.startsWith(")]}'")) {
-            intercepted = text;
-          }
+          intercepted = await response.text();
         } catch { /* ignore */ }
       }
     });
 
-    await session.page.goto("https://www.google.com/maps/saved", {
-      waitUntil: "networkidle",
-      timeout: config.sync.navigationTimeoutMs,
-    });
+    await session.page.reload({ waitUntil: "networkidle", timeout: config.sync.navigationTimeoutMs });
     await session.page.waitForTimeout(3000);
 
     if (intercepted) {
@@ -214,14 +208,14 @@ program
         const lists = parseLists(intercepted);
         console.log(`Schema OK — parsed ${lists.length} lists.`);
         for (const list of lists) {
-          console.log(`  - ${list.name} (${list.type}, ${list.count} items)`);
+          console.log(`  - ${list.name} (type ${list.type}, ${list.count} items)`);
         }
       } catch (error) {
         console.error("Schema FAILED:", error);
         process.exitCode = 1;
       }
     } else {
-      console.error("No response intercepted. Check your connection.");
+      console.error("No mas response intercepted. Check your connection.");
       process.exitCode = 1;
     }
 
