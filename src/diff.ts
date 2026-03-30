@@ -98,7 +98,6 @@ export async function applyDiff(
         firstSeen: now,
         lastSeenRemote: now,
         removedRemote: false,
-        enriched: null,
       };
       await store.writePlace(place);
       result.added++;
