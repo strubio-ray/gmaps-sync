@@ -2,11 +2,6 @@ import { parseLists, parsePlaces, getSchemaVersion } from "./parser.js";
 import { applyDiff, type DiffResult } from "./diff.js";
 import type { Store } from "./store.js";
 import { checkSession, interceptMasResponse } from "./session.js";
-import {
-  notifySessionExpired,
-  notifySchemaFailure,
-  notifySyncComplete,
-} from "./notifications.js";
 import type { AppConfig, ParsedList, ParsedPlace, SyncState } from "./types.js";
 
 const GETLIST_BASE = "https://www.google.com/maps/preview/entitylist/getlist";
@@ -30,13 +25,37 @@ export interface PullResult {
   listsFailed: number;
 }
 
+export interface PullOptions {
+  force?: boolean;
+}
+
 export async function pull(
   browserProfileDir: string,
   config: AppConfig,
   store: Store,
   profile: string,
+  options?: PullOptions,
 ): Promise<PullResult> {
   await store.init();
+
+  // --- Consecutive failure guard ---
+  if (!options?.force) {
+    const prevState = await store.readSyncState(profile);
+    if (prevState.consecutiveFailures >= config.sync.maxConsecutiveFailures) {
+      console.error(
+        `Sync paused after ${prevState.consecutiveFailures} consecutive failures. ` +
+        `Run \`gmaps-sync init --profile ${profile}\` to re-authenticate, or use \`--force\` to try anyway.`,
+      );
+      return {
+        success: false,
+        error:
+          `Sync paused after ${prevState.consecutiveFailures} consecutive failures. ` +
+          `Run \`gmaps-sync init --profile ${profile}\` to re-authenticate, or use \`--force\` to try anyway.`,
+        listsProcessed: 0,
+        listsFailed: 0,
+      };
+    }
+  }
 
   // --- Health check ---
   const session = await checkSession(browserProfileDir, config);
@@ -46,10 +65,6 @@ export async function pull(
     syncState.lastPull = new Date().toISOString();
     syncState.lastPullStatus = "failure";
     await store.writeSyncState(syncState);
-
-    if (syncState.consecutiveFailures >= 2 && config.notifications.onSessionExpired) {
-      notifySessionExpired(profile);
-    }
 
     return {
       success: false,
@@ -156,13 +171,6 @@ export async function pull(
       profile,
     };
     await store.writeSyncState(syncState);
-
-    if (allFailed && config.notifications.onSchemaFailure) {
-      notifySchemaFailure();
-    }
-    if (config.notifications.onSyncComplete) {
-      notifySyncComplete(profile, diff.added, diff.updated);
-    }
 
     await store.cleanOldSnapshots(config.snapshotsRetentionDays);
 
