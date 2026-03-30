@@ -19,9 +19,6 @@ export const DEFAULT_CONFIG: AppConfig = {
     navigationTimeoutMs: 30000,
     retryOnSessionFailure: true,
   },
-  enrichment: {
-    googlePlacesApiKey: null,
-  },
   notifications: {
     onSessionExpired: true,
     onSchemaFailure: true,
@@ -45,7 +42,6 @@ export function loadConfig(configPath?: string): AppConfig {
     ...DEFAULT_CONFIG,
     ...partial,
     sync: { ...DEFAULT_CONFIG.sync, ...partial.sync },
-    enrichment: { ...DEFAULT_CONFIG.enrichment, ...partial.enrichment },
     notifications: { ...DEFAULT_CONFIG.notifications, ...partial.notifications },
     profiles: { ...DEFAULT_CONFIG.profiles, ...partial.profiles },
   };
