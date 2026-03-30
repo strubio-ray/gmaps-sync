@@ -37,6 +37,11 @@ export class Store {
     await writeFileAtomic(path, JSON.stringify(place, null, 2) + "\n");
   }
 
+  async deletePlace(id: string): Promise<void> {
+    const path = join(this.dataDir, "places", `${id}.json`);
+    unlinkSync(path);
+  }
+
   async listPlaceIds(): Promise<string[]> {
     const dir = join(this.dataDir, "places");
     if (!existsSync(dir)) return [];
@@ -96,8 +101,7 @@ export class Store {
 
     for (const file of files) {
       const path = join(dir, file);
-      // Timestamp is the ISO date prefix of the filename
-      const dateStr = file.split("-").slice(0, 3).join("-");
+      const dateStr = file.split("T")[0];
       const fileDate = new Date(dateStr).getTime();
       if (!isNaN(fileDate) && fileDate < cutoff) {
         unlinkSync(path);

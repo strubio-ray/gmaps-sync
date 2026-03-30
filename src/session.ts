@@ -2,6 +2,7 @@ import { chromium, type BrowserContext, type Page } from "playwright";
 import type { AppConfig } from "./types.js";
 
 const SAVED_PLACES_URL = "https://www.google.com/maps/@0,0,2z/data=!4m2!10m1!1e1";
+const MAS_URL_FRAGMENT = "locationhistory/preview/mas";
 
 export interface SessionResult {
   loggedIn: boolean;
@@ -56,7 +57,7 @@ export async function initSession(
 
     // Wait for the mas request as proof of authenticated saved places access
     const masPromise = page.waitForRequest(
-      (req) => req.url().includes("locationhistory/preview/mas"),
+      (req) => req.url().includes(MAS_URL_FRAGMENT),
       { timeout: 300_000 },
     );
 
@@ -109,7 +110,7 @@ export async function checkSession(
     const page = context.pages()[0] ?? (await context.newPage());
 
     const masPromise = page.waitForRequest(
-      (req) => req.url().includes("locationhistory/preview/mas"),
+      (req) => req.url().includes(MAS_URL_FRAGMENT),
       { timeout: config.sync.navigationTimeoutMs },
     );
 
@@ -131,4 +132,42 @@ export async function checkSession(
     const message = error instanceof Error ? error.message : String(error);
     return { loggedIn: false, context: null, page: null, error: message };
   }
+}
+
+/**
+ * Reload the page and intercept the mas API response.
+ * Returns the raw response body and session token (extracted from the request URL).
+ */
+export async function interceptMasResponse(
+  page: Page,
+  timeoutMs: number,
+): Promise<{ masRaw: string | null; sessionToken: string | null }> {
+  let masRaw: string | null = null;
+  let sessionToken: string | null = null;
+
+  page.on("request", (request) => {
+    if (request.url().includes(MAS_URL_FRAGMENT)) {
+      const match = request.url().match(/!1s([^!]+)/);
+      sessionToken = match ? match[1] : null;
+    }
+  });
+
+  page.on("response", async (response) => {
+    if (response.url().includes(MAS_URL_FRAGMENT) && response.status() === 200) {
+      try {
+        masRaw = await response.text();
+      } catch {
+        // Response may not be text
+      }
+    }
+  });
+
+  await page.reload({ waitUntil: "domcontentloaded", timeout: timeoutMs });
+
+  const deadline = Date.now() + timeoutMs;
+  while (!masRaw && Date.now() < deadline) {
+    await page.waitForTimeout(1000);
+  }
+
+  return { masRaw, sessionToken };
 }

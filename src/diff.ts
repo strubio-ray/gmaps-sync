@@ -28,6 +28,10 @@ export async function applyDiff(
   const now = new Date().toISOString();
   const result: DiffResult = { added: 0, updated: 0, unchanged: 0, flaggedRemoved: 0 };
 
+  // Load all local places once to avoid N+1 reads
+  const allLocalPlaces = await store.readAllPlaces();
+  const localPlaceMap = new Map(allLocalPlaces.map((p) => [p.id, p]));
+
   // --- Diff lists ---
   const existingLists = await store.readLists();
   const remoteListIds = new Set(remoteLists.map((l) => l.id));
@@ -82,7 +86,7 @@ export async function applyDiff(
     };
     const newHash = computeContentHash(contentData);
 
-    const existing = await store.readPlace(remote.placeId);
+    const existing = localPlaceMap.get(remote.placeId) ?? null;
 
     if (!existing) {
       // New place
@@ -124,11 +128,9 @@ export async function applyDiff(
   }
 
   // Flag places missing from remote
-  const localIds = await store.listPlaceIds();
-  for (const localId of localIds) {
+  for (const [localId, place] of localPlaceMap) {
     if (!remotePlaceIds.has(localId)) {
-      const place = await store.readPlace(localId);
-      if (place && !place.removedRemote) {
+      if (!place.removedRemote) {
         place.removedRemote = true;
         await store.writePlace(place);
         result.flaggedRemoved++;

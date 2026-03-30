@@ -1,7 +1,7 @@
-import { parseLists, parsePlaces, getSchemaVersion, extractSessionToken } from "./parser.js";
+import { parseLists, parsePlaces, getSchemaVersion } from "./parser.js";
 import { applyDiff, type DiffResult } from "./diff.js";
 import type { Store } from "./store.js";
-import { checkSession } from "./session.js";
+import { checkSession, interceptMasResponse } from "./session.js";
 import {
   notifySessionExpired,
   notifySchemaFailure,
@@ -65,36 +65,10 @@ export async function pull(
     // --- Phase 1: Intercept mas response for list metadata and session token ---
     console.log("Phase 1: Fetching list metadata...");
 
-    let masRaw: string | null = null;
-    let sessionToken: string | null = null;
-
-    page.on("request", (request) => {
-      const url = request.url();
-      if (url.includes("locationhistory/preview/mas")) {
-        sessionToken = extractSessionToken(url);
-      }
-    });
-
-    page.on("response", async (response) => {
-      const url = response.url();
-      if (url.includes("locationhistory/preview/mas") && response.status() === 200) {
-        try {
-          masRaw = await response.text();
-        } catch {
-          // Response may not be text
-        }
-      }
-    });
-
-    // Reload to capture the mas request/response via our interceptors.
-    // Use domcontentloaded (not networkidle) — Google Maps SPA never goes idle.
-    await page.reload({ waitUntil: "domcontentloaded", timeout: config.sync.navigationTimeoutMs });
-
-    // Wait for the mas response to arrive (up to navigationTimeout)
-    const masDeadline = Date.now() + config.sync.navigationTimeoutMs;
-    while (!masRaw && Date.now() < masDeadline) {
-      await page.waitForTimeout(1000);
-    }
+    const { masRaw, sessionToken } = await interceptMasResponse(
+      page,
+      config.sync.navigationTimeoutMs,
+    );
 
     if (!sessionToken) {
       console.error("  Failed to extract session token from mas request.");
@@ -118,7 +92,7 @@ export async function pull(
     // --- Phase 2: Fetch each list's places via getlist ---
     console.log("Phase 2: Fetching places for each list...");
 
-    const allPlaces: ParsedPlace[] = [];
+    const uniquePlaces = new Map<string, ParsedPlace>();
     const listPlaceMap = new Map<string, string[]>();
     let listsProcessed = 0;
     let listsFailed = 0;
@@ -145,7 +119,9 @@ export async function pull(
 
         const placeIds = listPlaces.map((p) => p.placeId);
         listPlaceMap.set(list.id!, placeIds);
-        allPlaces.push(...listPlaces);
+        for (const place of listPlaces) {
+          uniquePlaces.set(place.placeId, place);
+        }
         listsProcessed++;
         console.log(`    Found ${listPlaces.length} places.`);
       } catch (error) {
@@ -157,15 +133,9 @@ export async function pull(
     // --- Phase 3: Diff and store ---
     console.log("Phase 3: Applying diff...");
 
-    // Deduplicate places by placeId
-    const uniquePlaces = new Map<string, ParsedPlace>();
-    for (const place of allPlaces) {
-      uniquePlaces.set(place.placeId, place);
-    }
-
     const diff = await applyDiff(
       store,
-      remoteLists.filter((l) => l.id !== null) as ParsedList[],
+      fetchableLists as ParsedList[],
       Array.from(uniquePlaces.values()),
       listPlaceMap,
     );

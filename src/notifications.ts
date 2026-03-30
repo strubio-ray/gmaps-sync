@@ -1,12 +1,13 @@
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 
 function notify(title: string, message: string): void {
-  const escapedTitle = title.replace(/"/g, '\\"');
-  const escapedMessage = message.replace(/"/g, '\\"');
+  const escapedTitle = title.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  const escapedMessage = message.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
   try {
-    execSync(
-      `osascript -e 'display notification "${escapedMessage}" with title "${escapedTitle}"'`,
-    );
+    execFileSync("osascript", [
+      "-e",
+      `display notification "${escapedMessage}" with title "${escapedTitle}"`,
+    ]);
   } catch {
     // osascript may not be available on non-macOS systems — fail silently
     console.warn(`[notifications] Could not send notification: ${title}`);

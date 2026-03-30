@@ -1,10 +1,18 @@
 import { writeFileSync, unlinkSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
-import { execSync } from "node:child_process";
+import { execFileSync } from "node:child_process";
 
 const PLIST_NAME = "com.gmaps-sync.pull";
 const PLIST_PATH = join(homedir(), "Library", "LaunchAgents", `${PLIST_NAME}.plist`);
+
+function xmlEscape(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
 
 function generatePlist(profile: string): string {
   const logDir = join(homedir(), ".gmaps-sync", "logs");
@@ -22,7 +30,7 @@ function generatePlist(profile: string): string {
         <string>${binPath}</string>
         <string>pull</string>
         <string>--profile</string>
-        <string>${profile}</string>
+        <string>${xmlEscape(profile)}</string>
     </array>
     <key>StartCalendarInterval</key>
     <dict>
@@ -49,7 +57,7 @@ export function installSchedule(profile: string): void {
   writeFileSync(PLIST_PATH, plistContent);
 
   try {
-    execSync(`launchctl load ${PLIST_PATH}`);
+    execFileSync("launchctl", ["load", PLIST_PATH]);
     console.log(`Schedule installed: ${PLIST_PATH}`);
     console.log("Pull will run daily at 6:00 AM (with jitter).");
   } catch (error) {
@@ -64,7 +72,7 @@ export function uninstallSchedule(): void {
   }
 
   try {
-    execSync(`launchctl unload ${PLIST_PATH}`);
+    execFileSync("launchctl", ["unload", PLIST_PATH]);
   } catch {
     // May already be unloaded
   }

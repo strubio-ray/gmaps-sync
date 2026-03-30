@@ -1,11 +1,11 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { mkdirSync, unlinkSync } from "node:fs";
-import { join } from "node:path";
+import { mkdirSync } from "node:fs";
 import { loadConfig, resolveProfilePaths, BASE_DIR } from "./config.js";
+import type { AppConfig } from "./types.js";
 import { Store } from "./store.js";
-import { initSession, checkSession } from "./session.js";
+import { initSession, checkSession, interceptMasResponse } from "./session.js";
 import { pull } from "./pull.js";
 import { parseLists } from "./parser.js";
 import { installSchedule, uninstallSchedule } from "./scheduling.js";
@@ -17,12 +17,12 @@ program
   .description("One-way sync from Google Maps saved places to local JSON")
   .version("0.1.0");
 
-function getStore(profile: string): { store: Store; browserProfileDir: string } {
-  const config = loadConfig();
+function getStore(
+  profile: string,
+  config: AppConfig,
+): { store: Store; browserProfileDir: string } {
   const profileConfig = config.profiles[profile];
   const paths = resolveProfilePaths(BASE_DIR, profile, profileConfig);
-  mkdirSync(paths.dataDir, { recursive: true });
-  mkdirSync(paths.browserProfileDir, { recursive: true });
   return { store: new Store(paths.dataDir), browserProfileDir: paths.browserProfileDir };
 }
 
@@ -33,7 +33,8 @@ program
   .option("--profile <name>", "Profile name", "default")
   .action(async (opts: { profile: string }) => {
     const config = loadConfig();
-    const { browserProfileDir, store } = getStore(opts.profile);
+    const { browserProfileDir, store } = getStore(opts.profile, config);
+    mkdirSync(browserProfileDir, { recursive: true });
     await store.init();
 
     console.log(`Initializing profile: ${opts.profile}`);
@@ -59,7 +60,7 @@ program
     if (opts.headed) {
       config.headless = false;
     }
-    const { browserProfileDir, store } = getStore(opts.profile);
+    const { browserProfileDir, store } = getStore(opts.profile, config);
 
     // Jitter: random delay when run by scheduler (non-TTY)
     if (!process.stdout.isTTY && config.sync.jitterMinutes > 0) {
@@ -87,7 +88,8 @@ program
   .description("Show sync status")
   .option("--profile <name>", "Profile name", "default")
   .action(async (opts: { profile: string }) => {
-    const { store } = getStore(opts.profile);
+    const config = loadConfig();
+    const { store } = getStore(opts.profile, config);
     const syncState = await store.readSyncState(opts.profile);
     const lists = await store.readLists();
     const placeIds = await store.listPlaceIds();
@@ -108,8 +110,8 @@ program
   .option("--profile <name>", "Profile name", "default")
   .option("--dry-run", "Show what would be removed without removing", false)
   .action(async (opts: { profile: string; dryRun: boolean }) => {
-    const { store } = getStore(opts.profile);
     const config = loadConfig();
+    const { store } = getStore(opts.profile, config);
     const allPlaces = await store.readAllPlaces();
     const toRemove = allPlaces.filter((p) => p.removedRemote);
 
@@ -122,9 +124,7 @@ program
       if (opts.dryRun) {
         console.log(`Would remove: ${place.name} (${place.id})`);
       } else {
-        const profileConfig = config.profiles[opts.profile];
-        const paths = resolveProfilePaths(BASE_DIR, opts.profile, profileConfig);
-        unlinkSync(join(paths.dataDir, "places", `${place.id}.json`));
+        await store.deletePlace(place.id);
         console.log(`Removed: ${place.name} (${place.id})`);
       }
     }
@@ -143,7 +143,7 @@ program
   .option("--profile <name>", "Profile name", "default")
   .action(async (opts: { profile: string }) => {
     const config = loadConfig();
-    const { browserProfileDir } = getStore(opts.profile);
+    const { browserProfileDir } = getStore(opts.profile, config);
 
     console.log("Running schema check (dry run)...");
     const session = await checkSession(browserProfileDir, config);
@@ -153,27 +153,14 @@ program
       return;
     }
 
-    let intercepted: string | null = null;
-    session.page.on("response", async (response) => {
-      const url = response.url();
-      if (url.includes("locationhistory/preview/mas") && response.status() === 200) {
-        try {
-          intercepted = await response.text();
-        } catch { /* ignore */ }
-      }
-    });
+    const { masRaw } = await interceptMasResponse(
+      session.page,
+      config.sync.navigationTimeoutMs,
+    );
 
-    await session.page.reload({ waitUntil: "domcontentloaded", timeout: config.sync.navigationTimeoutMs });
-
-    // Wait for the mas response to arrive
-    const masDeadline = Date.now() + config.sync.navigationTimeoutMs;
-    while (!intercepted && Date.now() < masDeadline) {
-      await session.page.waitForTimeout(1000);
-    }
-
-    if (intercepted) {
+    if (masRaw) {
       try {
-        const lists = parseLists(intercepted);
+        const lists = parseLists(masRaw);
         console.log(`Schema OK — parsed ${lists.length} lists.`);
         for (const list of lists) {
           console.log(`  - ${list.name} (type ${list.type}, ${list.count} items)`);
