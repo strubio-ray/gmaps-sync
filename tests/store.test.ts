@@ -70,7 +70,6 @@ describe("Store", () => {
         firstSeen: "2026-03-29T12:00:00Z",
         lastSeenRemote: "2026-03-29T12:00:00Z",
         removedRemote: false,
-        enriched: null,
       };
       await store.writePlace(place);
       const result = await store.readPlace("ChIJ_test");
@@ -91,7 +90,6 @@ describe("Store", () => {
         firstSeen: "2026-03-29T12:00:00Z",
         lastSeenRemote: "2026-03-29T12:00:00Z",
         removedRemote: false,
-        enriched: null,
       };
       await store.writePlace(place);
       const ids = await store.listPlaceIds();

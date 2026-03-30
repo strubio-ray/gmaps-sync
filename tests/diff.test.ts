@@ -82,7 +82,6 @@ describe("applyDiff", () => {
       firstSeen: "2026-03-28T12:00:00Z",
       lastSeenRemote: "2026-03-28T12:00:00Z",
       removedRemote: false,
-      enriched: null,
     };
     await store.writePlace(existing);
 
@@ -120,7 +119,6 @@ describe("applyDiff", () => {
       firstSeen: "2026-03-28T12:00:00Z",
       lastSeenRemote: "2026-03-28T12:00:00Z",
       removedRemote: false,
-      enriched: null,
     };
     await store.writePlace(existing);
 
@@ -144,7 +142,6 @@ describe("applyDiff", () => {
       firstSeen: "2026-03-28T12:00:00Z",
       lastSeenRemote: "2026-03-28T12:00:00Z",
       removedRemote: true,
-      enriched: null,
     };
     await store.writePlace(existing);
 
