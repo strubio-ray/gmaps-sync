@@ -1,26 +1,24 @@
 {
-  "version": 1,
-  "responsePrefix": ")]}'\\n",
+  "version": 2,
   "lists": {
-    "root": "[0]",
-    "entries": "[0][1]",
+    "root": "[29][3]",
     "entry": {
-      "id": "[0]",
-      "name": "[1]",
-      "type": "[2]",
-      "count": "[3]"
+      "id": "[0][0]",
+      "name": "[4]",
+      "type": "[0][1]",
+      "count": "[12]"
     }
   },
   "places": {
-    "root": "[0]",
-    "entries": "[0][8]",
+    "root": "[0][8]",
     "entry": {
       "name": "[2]",
       "lat": "[1][5][2]",
       "lng": "[1][5][3]",
-      "googleMapsUrl": "[1][0]",
+      "address": "[1][2]",
       "comment": "[3]",
-      "placeId": "[1][1]"
+      "placeIdPart1": "[1][6][0]",
+      "placeIdPart2": "[1][6][1]"
     }
   }
 }
