@@ -86,15 +86,10 @@ export async function enrichPlaces(
 
     try {
       console.log(`Enriching: ${place.name} (${id})...`);
-      const enriched = await fetchPlaceDetails(id, apiKey);
-      if (enriched) {
-        place.enriched = enriched;
-        await store.writePlace(place);
-        result.enriched++;
-      } else {
-        console.warn(`  No details found for ${place.name}`);
-        result.failed++;
-      }
+      // New placeId format (numeric pair) is not a valid Google Places API place_id.
+      // Enrichment is disabled until a lookup strategy using placeRef or name+coords is implemented.
+      console.warn(`  Skipped: enrichment not yet supported with new place ID format`);
+      result.skipped++;
     } catch (error) {
       console.error(`  Failed to enrich ${place.name}:`, error);
       result.failed++;
