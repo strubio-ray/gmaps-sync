@@ -69,7 +69,6 @@ export interface Place {
   firstSeen: string;
   lastSeenRemote: string;
   removedRemote: boolean;
-  enriched: EnrichedData | null;
 }
 ```
 
@@ -445,8 +444,7 @@ Change the new place construction (around line 88):
         firstSeen: now,
         lastSeenRemote: now,
         removedRemote: false,
-        enriched: null,
-      };
+        };
 ```
 
 Change the update path (around line 106):
@@ -549,7 +547,6 @@ describe("applyDiff", () => {
       firstSeen: "2026-03-28T12:00:00Z",
       lastSeenRemote: "2026-03-28T12:00:00Z",
       removedRemote: false,
-      enriched: null,
     };
     await store.writePlace(existing);
 
@@ -587,7 +584,6 @@ describe("applyDiff", () => {
       firstSeen: "2026-03-28T12:00:00Z",
       lastSeenRemote: "2026-03-28T12:00:00Z",
       removedRemote: false,
-      enriched: null,
     };
     await store.writePlace(existing);
 
@@ -611,7 +607,6 @@ describe("applyDiff", () => {
       firstSeen: "2026-03-28T12:00:00Z",
       lastSeenRemote: "2026-03-28T12:00:00Z",
       removedRemote: true,
-      enriched: null,
     };
     await store.writePlace(existing);
 
@@ -668,11 +663,10 @@ git commit -m "refactor: update diff engine for new API response format"
 
 ---
 
-### Task 5: Update store and enrich tests
+### Task 5: Update store tests
 
 **Files:**
 - Modify: `tests/store.test.ts`
-- Modify: `tests/enrich.test.ts`
 
 - [ ] **Step 1: Update store tests — replace `googleMapsUrl` with `address`**
 
@@ -703,80 +697,21 @@ becomes:
 type: 3,
 ```
 
-- [ ] **Step 2: Update enrich test — replace `makePlace` helper**
-
-In `tests/enrich.test.ts`, update the `makePlace` function:
-
-```typescript
-function makePlace(overrides: Partial<Place> = {}): Place {
-  return {
-    id: "-123_-456",
-    name: "Test",
-    coordinates: { lat: 0, lng: 0 },
-    address: "",
-    lists: [],
-    comment: null,
-    source: "pull",
-    contentHash: "sha256:abc",
-    firstSeen: "2026-03-29T12:00:00Z",
-    lastSeenRemote: "2026-03-29T12:00:00Z",
-    removedRemote: false,
-    enriched: null,
-    ...overrides,
-  };
-}
-```
-
-- [ ] **Step 3: Run all tests**
+- [ ] **Step 2: Run all tests**
 
 Run: `npx vitest run 2>&1 | tail -20`
 Expected: All tests PASS.
 
-- [ ] **Step 4: Commit**
-
-```bash
-git add tests/store.test.ts tests/enrich.test.ts
-git commit -m "test: update store and enrich tests for new Place type"
-```
-
----
-
-### Task 6: Update enrich.ts for new placeId format
-
-**Files:**
-- Modify: `src/enrich.ts`
-
-- [ ] **Step 1: Update `fetchPlaceDetails` to warn about incompatible placeId**
-
-The new `placeId` (numeric ID pair) is not a valid Google Places API `place_id`. For now, log a warning and skip enrichment. Replace the `fetchPlaceDetails` call in `enrichPlaces` (line 89):
-
-```typescript
-    try {
-      console.log(`Enriching: ${place.name} (${id})...`);
-      // New placeId format (numeric pair) is not a valid Google Places API place_id.
-      // Enrichment is disabled until a lookup strategy using placeRef or name+coords is implemented.
-      console.warn(`  Skipped: enrichment not yet supported with new place ID format`);
-      result.skipped++;
-    } catch (error) {
-```
-
-Remove the inner `if (enriched)` / `else` block so the try body is just the two console lines and `result.skipped++`.
-
-- [ ] **Step 2: Verify build**
-
-Run: `npx tsc --noEmit 2>&1 | tail -10`
-Expected: No errors.
-
 - [ ] **Step 3: Commit**
 
 ```bash
-git add src/enrich.ts
-git commit -m "refactor: disable enrichment until placeRef lookup is implemented"
+git add tests/store.test.ts
+git commit -m "test: update store tests for new Place type"
 ```
 
 ---
 
-### Task 7: Update session.ts
+### Task 6: Update session.ts
 
 **Files:**
 - Modify: `src/session.ts`

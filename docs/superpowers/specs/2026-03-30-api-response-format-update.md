@@ -102,10 +102,6 @@ Google has removed the `/maps/saved` URL (returns 404). Saved places are now acc
 - Session token extracted from intercepted `mas` request URL pattern `!1s<token>`
 - `getlist` URL constructed from template using `listId`, `listType`, `sessionToken`
 
-## Enrichment (`enrich.ts`)
-
-The new `placeId` (numeric ID pair) is not a valid Google Places API `place_id`. The `enrich` command currently passes `placeId` directly to the Places API `place_id` parameter, which expects `ChIJ...` format. For now, disable the `placeId`-based lookup in `enrich.ts` and use the `placeRef` field (`/g/...` reference) or name+coordinates as the lookup strategy. Document enrichment as degraded until a proper Places API integration is revisited.
-
 ## CLI (`cli.ts`)
 
 The `schema-check` command navigates to `https://www.google.com/maps/saved` and checks for the XSSI prefix. Update it to:
@@ -118,7 +114,6 @@ The `schema-check` command navigates to `https://www.google.com/maps/saved` and 
 - `parser.test.ts`: import from `mas-response.json` and `getlist-response.json`, fixtures are raw JSON arrays (pass `JSON.stringify(fixture)` to parser functions which expect string input), update expected outputs for new fields
 - `diff.test.ts`: update mock data (remove `googleMapsUrl`, add `address`, new content hash, `ListMetadata.type` to number)
 - `store.test.ts`: update mock place objects to match new `Place` type
-- `enrich.test.ts`: update `makePlace()` helper to match new `Place` type (remove `googleMapsUrl`, add `address`)
 
 ## Files Changed
 
@@ -131,7 +126,6 @@ The `schema-check` command navigates to `https://www.google.com/maps/saved` and 
 | `src/pull.ts` | New endpoint interception, `fetch`-based getlist calls, remove scroll logic |
 | `src/diff.ts` | Update content hash fields |
 | `tests/parser.test.ts` | New fixtures, new expected outputs |
-| `src/enrich.ts` | Disable `placeId`-based Places API lookup, use `placeRef` or name+coords |
 | `src/cli.ts` | Update `schema-check` command for new URL and response format |
 ## Verification
 
