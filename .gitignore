@@ -16,3 +16,4 @@ Vagrantfile
 .worktrees/
 node_modules/
 dist/
+tests/fixtures/*.json
