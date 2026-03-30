@@ -55,7 +55,8 @@ program
   .description("Pull saved places from Google Maps")
   .option("--profile <name>", "Profile name", "default")
   .option("--headed", "Run browser in headed mode for debugging", false)
-  .action(async (opts: { profile: string; headed: boolean }) => {
+  .option("--force", "Bypass consecutive failure guard", false)
+  .action(async (opts: { profile: string; headed: boolean; force: boolean }) => {
     const config = loadConfig();
     if (opts.headed) {
       config.headless = false;
@@ -72,7 +73,9 @@ program
     }
 
     console.log(`Pulling for profile: ${opts.profile}`);
-    const result = await pull(browserProfileDir, config, store, opts.profile);
+    const result = await pull(browserProfileDir, config, store, opts.profile, {
+      force: opts.force,
+    });
 
     if (result.success) {
       console.log("Pull complete.");
