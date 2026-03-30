@@ -17,12 +17,7 @@ export const DEFAULT_CONFIG: AppConfig = {
     jitterMinutes: 60,
     delayBetweenListsMs: [2000, 5000],
     navigationTimeoutMs: 30000,
-    retryOnSessionFailure: true,
-  },
-  notifications: {
-    onSessionExpired: true,
-    onSchemaFailure: true,
-    onSyncComplete: false,
+    maxConsecutiveFailures: 2,
   },
   headless: true,
   useSystemChrome: true,
@@ -42,7 +37,6 @@ export function loadConfig(configPath?: string): AppConfig {
     ...DEFAULT_CONFIG,
     ...partial,
     sync: { ...DEFAULT_CONFIG.sync, ...partial.sync },
-    notifications: { ...DEFAULT_CONFIG.notifications, ...partial.notifications },
     profiles: { ...DEFAULT_CONFIG.profiles, ...partial.profiles },
   };
 }
