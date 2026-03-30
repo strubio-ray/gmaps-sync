@@ -42,7 +42,13 @@ export async function initSession(
   browserProfileDir: string,
   config: AppConfig,
 ): Promise<SessionResult> {
-  const context = await launchContext(browserProfileDir, config, false);
+  let context: BrowserContext;
+  try {
+    context = await launchContext(browserProfileDir, config, false);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { loggedIn: false, error: `Failed to launch browser: ${message}` };
+  }
 
   try {
     const page = context.pages()[0] ?? (await context.newPage());
@@ -88,7 +94,13 @@ export async function checkSession(
   page: Page | null;
   error?: string;
 }> {
-  const context = await launchContext(browserProfileDir, config, config.headless);
+  let context: BrowserContext;
+  try {
+    context = await launchContext(browserProfileDir, config, config.headless);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return { loggedIn: false, context: null, page: null, error: `Failed to launch browser: ${message}` };
+  }
 
   try {
     const page = context.pages()[0] ?? (await context.newPage());
