@@ -16,8 +16,9 @@ function randomDelay(range: [number, number]): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function buildGetlistUrl(listId: string, listType: number, sessionToken: string): string {
-  const pb = `!1m4!1s${listId}!2e1!3m1!1e1!2e2!3e${listType}!4i500!6m3!1s${sessionToken}!7e81!28e2!8i3!16b1`;
+function buildGetlistUrl(listId: string, sessionToken: string): string {
+  // !3e2 requests full entry details (not just metadata)
+  const pb = `!1m4!1s${listId}!2e1!3m1!1e1!2e2!3e2!4i500!6m3!1s${sessionToken}!7e81!28e2!8i3!16b1`;
   return `${GETLIST_BASE}?authuser=0&hl=en&gl=us&pb=${pb}`;
 }
 
@@ -131,7 +132,7 @@ export async function pull(
       await randomDelay(config.sync.delayBetweenListsMs);
 
       try {
-        const getlistUrl = buildGetlistUrl(list.id!, list.type, sessionToken);
+        const getlistUrl = buildGetlistUrl(list.id!, sessionToken);
 
         const rawResponse = await page.evaluate(async (url: string) => {
           const res = await fetch(url, { credentials: "include" });
@@ -139,8 +140,8 @@ export async function pull(
           return res.text();
         }, getlistUrl);
 
-        const listPlaces = parsePlaces(rawResponse);
         await store.saveSnapshot(list.id!, rawResponse);
+        const listPlaces = parsePlaces(rawResponse);
 
         const placeIds = listPlaces.map((p) => p.placeId);
         listPlaceMap.set(list.id!, placeIds);
