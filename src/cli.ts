@@ -9,6 +9,7 @@ import { initSession, checkSession } from "./session.js";
 import { pull } from "./pull.js";
 import { enrichPlaces } from "./enrich.js";
 import { parseLists } from "./parser.js";
+import { installSchedule, uninstallSchedule } from "./scheduling.js";
 
 const program = new Command();
 
@@ -225,6 +226,20 @@ program
     }
 
     await session.context!.close();
+  });
+
+// --- schedule ---
+program
+  .command("schedule")
+  .description("Install or remove the daily sync schedule (macOS launchd)")
+  .option("--profile <name>", "Profile name", "default")
+  .option("--remove", "Remove the schedule", false)
+  .action((opts: { profile: string; remove: boolean }) => {
+    if (opts.remove) {
+      uninstallSchedule();
+    } else {
+      installSchedule(opts.profile);
+    }
   });
 
 program.parse();
