@@ -12,15 +12,6 @@ export interface PlaceCoordinates {
   lng: number;
 }
 
-export interface EnrichedData {
-  address: string;
-  phone: string | null;
-  rating: number | null;
-  priceLevel: string | null;
-  category: string | null;
-  enrichedAt: string;
-}
-
 export interface Place {
   id: string;
   name: string;
@@ -33,7 +24,6 @@ export interface Place {
   firstSeen: string;
   lastSeenRemote: string;
   removedRemote: boolean;
-  enriched: EnrichedData | null;
 }
 
 export interface SyncState {
@@ -57,10 +47,6 @@ export interface SyncConfig {
   retryOnSessionFailure: boolean;
 }
 
-export interface EnrichmentConfig {
-  googlePlacesApiKey: string | null;
-}
-
 export interface NotificationsConfig {
   onSessionExpired: boolean;
   onSchemaFailure: boolean;
@@ -70,7 +56,6 @@ export interface NotificationsConfig {
 export interface AppConfig {
   profiles: Record<string, ProfileConfig>;
   sync: SyncConfig;
-  enrichment: EnrichmentConfig;
   notifications: NotificationsConfig;
   headless: boolean;
   useSystemChrome: boolean;
