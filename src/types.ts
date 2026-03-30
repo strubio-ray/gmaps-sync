@@ -1,7 +1,7 @@
 export interface ListMetadata {
   id: string;
   name: string;
-  type: string;
+  type: number;
   count: number;
   lastSeenRemote: string;
   removedRemote: boolean;
@@ -25,7 +25,7 @@ export interface Place {
   id: string;
   name: string;
   coordinates: PlaceCoordinates;
-  googleMapsUrl: string;
+  address: string;
   lists: string[];
   comment: string | null;
   source: "pull" | "local";
@@ -79,9 +79,9 @@ export interface AppConfig {
 
 /** Raw parsed data from pull engine before diff processing */
 export interface ParsedList {
-  id: string;
+  id: string | null;
   name: string;
-  type: string;
+  type: number;
   count: number;
 }
 
@@ -89,7 +89,7 @@ export interface ParsedPlace {
   name: string;
   lat: number;
   lng: number;
-  googleMapsUrl: string;
+  address: string;
   comment: string | null;
   placeId: string;
 }
