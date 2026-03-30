@@ -1,7 +1,7 @@
 import { chromium, type BrowserContext, type Page } from "playwright";
 import type { AppConfig } from "./types.js";
 
-const SAVED_PLACES_URL = "https://www.google.com/maps/saved";
+const SAVED_PLACES_URL = "https://www.google.com/maps/@0,0,2z/data=!4m2!10m1!1e1";
 
 export interface SessionResult {
   loggedIn: boolean;
@@ -36,7 +36,8 @@ async function launchContext(
 
 /**
  * Interactive init flow — opens headed browser for user to log in.
- * Returns when the user has successfully logged in, or on timeout.
+ * Detects successful login by intercepting the mas API request
+ * (which only fires when the Saved panel loads with an authenticated session).
  */
 export async function initSession(
   browserProfileDir: string,
@@ -52,6 +53,13 @@ export async function initSession(
 
   try {
     const page = context.pages()[0] ?? (await context.newPage());
+
+    // Wait for the mas request as proof of authenticated saved places access
+    const masPromise = page.waitForRequest(
+      (req) => req.url().includes("locationhistory/preview/mas"),
+      { timeout: 300_000 },
+    );
+
     await page.goto(SAVED_PLACES_URL, {
       waitUntil: "domcontentloaded",
       timeout: config.sync.navigationTimeoutMs,
@@ -60,12 +68,7 @@ export async function initSession(
     console.log("Please log in to your Google account in the browser window.");
     console.log("Waiting for you to reach the saved places page...");
 
-    // Wait for the URL to indicate we're on the saved places page (not a login redirect)
-    // Timeout after 5 minutes to give user time for 2FA
-    await page.waitForURL((url) => {
-      const href = url.toString();
-      return href.includes("/maps/saved") && !href.includes("accounts.google.com");
-    }, { timeout: 300_000 });
+    await masPromise;
 
     // Add a small delay to let cookies fully settle
     await page.waitForTimeout(2000);
@@ -82,7 +85,7 @@ export async function initSession(
 
 /**
  * Health check — verifies the session is still valid by navigating
- * to the saved places page in headless mode.
+ * to the saved places page and checking for the mas API request.
  * Returns the BrowserContext and Page if logged in (caller must close).
  */
 export async function checkSession(
@@ -105,22 +108,21 @@ export async function checkSession(
   try {
     const page = context.pages()[0] ?? (await context.newPage());
 
+    const masPromise = page.waitForRequest(
+      (req) => req.url().includes("locationhistory/preview/mas"),
+      { timeout: config.sync.navigationTimeoutMs },
+    );
+
     await page.goto(SAVED_PLACES_URL, {
       waitUntil: "domcontentloaded",
       timeout: config.sync.navigationTimeoutMs,
     });
 
-    // Wait a moment for any redirects
-    await page.waitForTimeout(3000);
-
-    const currentUrl = page.url();
-    const loggedIn =
-      currentUrl.includes("/maps/saved") &&
-      !currentUrl.includes("accounts.google.com");
-
-    if (loggedIn) {
+    try {
+      await masPromise;
       return { loggedIn: true, context, page };
-    } else {
+    } catch {
+      // mas request never fired — not logged in or page didn't load saved panel
       await context.close();
       return { loggedIn: false, context: null, page: null };
     }
