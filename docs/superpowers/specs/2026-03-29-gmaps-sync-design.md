@@ -49,12 +49,6 @@ Pull-only for MVP. The architecture supports adding a push engine later without 
 │  └──────────────────────────────────────────────────────┘   │
 │                                                              │
 │  ┌──────────────────────────────────────────────────────┐   │
-│  │              Enrichment (on-demand)                   │   │
-│  │  gmaps-sync enrich — calls Google Places API          │   │
-│  │  Fills: address, phone, rating, category              │   │
-│  └──────────────────────────────────────────────────────┘   │
-│                                                              │
-│  ┌──────────────────────────────────────────────────────┐   │
 │  │              Snapshots (debug/audit)                  │   │
 │  │  snapshots/<timestamp>-<list-id>.json                 │   │
 │  │  Raw responses preserved on every successful pull     │   │
@@ -236,18 +230,7 @@ When push is added later, this engine gains a `source` field check:
 
 That is the only change needed. The soft-delete pattern already preserves the data either way.
 
-### 5. Enrichment (enrich.ts)
-
-On-demand command, not part of the pull pipeline.
-
-- Calls Google Places API to fill in: full address, phone, rating, priceLevel, category
-- Uses coordinates or Google Maps URL to look up the Place ID, then fetches details
-- Runs once per place, cached in the `enriched` field with an `enrichedAt` timestamp
-- Skips re-enrichment unless `--force` is passed
-- Requires `enrichment.googlePlacesApiKey` in config (null by default)
-- Cost: ~$17 per 1000 Place Details requests
-
-### 6. Store (store.ts)
+### 5. Store (store.ts)
 
 Handles all file I/O for the data directory.
 
@@ -257,7 +240,7 @@ Handles all file I/O for the data directory.
 - Snapshot management: save raw responses, clean up old snapshots based on `snapshotsRetentionDays`
 - All paths resolved relative to the active profile's `dataDir`
 
-### 7. Notifications (notifications.ts)
+### 6. Notifications (notifications.ts)
 
 macOS notifications via `osascript -e 'display notification ...'`.
 
@@ -298,21 +281,7 @@ Triggered on:
   "contentHash": "sha256:a1b2c3...",
   "firstSeen": "2026-03-29T12:00:00Z",
   "lastSeenRemote": "2026-03-29T12:00:00Z",
-  "removedRemote": false,
-  "enriched": null
-}
-```
-
-The `enriched` field is `null` by default. After `gmaps-sync enrich`:
-
-```json
-"enriched": {
-  "address": "1732 Westheimer Rd, Houston, TX 77098",
-  "phone": "+1 713-555-1234",
-  "rating": 4.5,
-  "priceLevel": "$10-20",
-  "category": "Cafe",
-  "enrichedAt": "2026-03-29T14:00:00Z"
+  "removedRemote": false
 }
 ```
 
@@ -341,7 +310,6 @@ The `enriched` field is `null` by default. After `gmaps-sync enrich`:
 | `gmaps-sync init [--profile <name>]` | First-time setup: opens headed browser for Google login, creates data/ directory |
 | `gmaps-sync pull [--profile <name>]` | On-demand pull from Google Maps |
 | `gmaps-sync status [--profile <name>]` | Show last sync time, place count, any warnings |
-| `gmaps-sync enrich [--all\|--list <id>\|--place <id>]` | Enrich places via Google Places API |
 | `gmaps-sync prune [--dry-run]` | Remove local files for places flagged `removedRemote` |
 | `gmaps-sync schema-check` | Validate current schema.json against a test pull (dry run, no data written) |
 
@@ -378,9 +346,6 @@ A `com.gmaps-sync.pull.plist` installed to `~/Library/LaunchAgents/`:
     "navigationTimeoutMs": 30000,
     "retryOnSessionFailure": true
   },
-  "enrichment": {
-    "googlePlacesApiKey": null
-  },
   "notifications": {
     "onSessionExpired": true,
     "onSchemaFailure": true,
@@ -405,7 +370,6 @@ gmaps-sync/
     pull.ts             — Navigation, network interception, orchestration
     parser.ts           — Schema-driven response parsing
     diff.ts             — Compare remote vs local, apply changes
-    enrich.ts           — Google Places API enrichment
     store.ts            — Atomic file read/write, data directory management
     notifications.ts    — macOS notifications via osascript
     types.ts            — Shared TypeScript interfaces
@@ -425,8 +389,6 @@ gmaps-sync/
 | Commander | CLI framework |
 | write-file-atomic | Safe file writes |
 | vitest | Testing |
-| @googlemaps/google-maps-services-js | Places API enrichment (optional, used by `enrich` only) |
-
 **Not in the stack:**
 
 - No Stagehand / no LLM dependency — pull-only needs no AI-powered UI interaction
@@ -449,8 +411,7 @@ gmaps-sync/
 5. **Soft-delete for removals.** Places that disappear from Google Maps are flagged, not deleted. Prevents accidental data loss. `gmaps-sync prune` cleans up when the user is ready.
 6. **JSON files over SQLite.** At this scale, individual JSON files are simpler, human-readable, git-diffable, and easy for other tools to consume.
 7. **System Chrome over bundled Chromium.** Reduces bot detection fingerprint by using the same browser binary the user normally runs.
-8. **On-demand enrichment.** Keeps the pull pipeline free of external API dependencies and costs. Users opt into enrichment when they need it.
-9. **Daily sync with jitter.** Balances freshness against detection risk. Randomized timing avoids predictable automation patterns.
+8. **Daily sync with jitter.** Balances freshness against detection risk. Randomized timing avoids predictable automation patterns.
 
 ## What's NOT in MVP
 
