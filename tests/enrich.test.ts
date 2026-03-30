@@ -4,10 +4,10 @@ import type { Place } from "../src/types.js";
 
 function makePlace(overrides: Partial<Place> = {}): Place {
   return {
-    id: "ChIJ_test",
+    id: "-123_-456",
     name: "Test",
     coordinates: { lat: 0, lng: 0 },
-    googleMapsUrl: "https://maps.google.com/test",
+    address: "",
     lists: [],
     comment: null,
     source: "pull",
