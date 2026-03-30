@@ -45,15 +45,15 @@ describe("applyDiff", () => {
         name: "Café A",
         lat: 29.75,
         lng: -95.37,
-        googleMapsUrl: "https://maps.google.com/a",
+        address: "123 Main St, Houston, TX",
         comment: null,
-        placeId: "ChIJ_a",
+        placeId: "-123_-456",
       },
     ];
     const remoteLists: ParsedList[] = [
-      { id: "list_1", name: "Favorites", type: "FAVORITES", count: 1 },
+      { id: "list_1", name: "Favorites", type: 2, count: 1 },
     ];
-    const listPlaceMap = new Map([["list_1", ["ChIJ_a"]]]);
+    const listPlaceMap = new Map([["list_1", ["-123_-456"]]]);
 
     const result = await applyDiff(store, remoteLists, remotePlaces, listPlaceMap);
 
@@ -61,19 +61,20 @@ describe("applyDiff", () => {
     expect(result.updated).toBe(0);
     expect(result.flaggedRemoved).toBe(0);
 
-    const place = await store.readPlace("ChIJ_a");
+    const place = await store.readPlace("-123_-456");
     expect(place).not.toBeNull();
     expect(place!.name).toBe("Café A");
+    expect(place!.address).toBe("123 Main St, Houston, TX");
     expect(place!.source).toBe("pull");
     expect(place!.lists).toEqual(["list_1"]);
   });
 
   it("updates existing place when data changes", async () => {
     const existing: Place = {
-      id: "ChIJ_a",
+      id: "-123_-456",
       name: "Old Name",
       coordinates: { lat: 29.75, lng: -95.37 },
-      googleMapsUrl: "https://maps.google.com/a",
+      address: "123 Main St, Houston, TX",
       lists: ["list_1"],
       comment: null,
       source: "pull",
@@ -90,17 +91,17 @@ describe("applyDiff", () => {
         name: "New Name",
         lat: 29.75,
         lng: -95.37,
-        googleMapsUrl: "https://maps.google.com/a",
+        address: "123 Main St, Houston, TX",
         comment: "Added a comment",
-        placeId: "ChIJ_a",
+        placeId: "-123_-456",
       },
     ];
-    const listPlaceMap = new Map([["list_1", ["ChIJ_a"]]]);
+    const listPlaceMap = new Map([["list_1", ["-123_-456"]]]);
 
     const result = await applyDiff(store, [], remotePlaces, listPlaceMap);
     expect(result.updated).toBe(1);
 
-    const updated = await store.readPlace("ChIJ_a");
+    const updated = await store.readPlace("-123_-456");
     expect(updated!.name).toBe("New Name");
     expect(updated!.comment).toBe("Added a comment");
     expect(updated!.firstSeen).toBe("2026-03-28T12:00:00Z");
@@ -108,10 +109,10 @@ describe("applyDiff", () => {
 
   it("flags places missing from remote as removedRemote", async () => {
     const existing: Place = {
-      id: "ChIJ_gone",
+      id: "-789_-012",
       name: "Gone Place",
       coordinates: { lat: 0, lng: 0 },
-      googleMapsUrl: "https://maps.google.com/gone",
+      address: "",
       lists: ["list_1"],
       comment: null,
       source: "pull",
@@ -126,16 +127,16 @@ describe("applyDiff", () => {
     const result = await applyDiff(store, [], [], new Map());
     expect(result.flaggedRemoved).toBe(1);
 
-    const flagged = await store.readPlace("ChIJ_gone");
+    const flagged = await store.readPlace("-789_-012");
     expect(flagged!.removedRemote).toBe(true);
   });
 
   it("does not re-flag already removed places", async () => {
     const existing: Place = {
-      id: "ChIJ_gone",
+      id: "-789_-012",
       name: "Gone Place",
       coordinates: { lat: 0, lng: 0 },
-      googleMapsUrl: "https://maps.google.com/gone",
+      address: "",
       lists: [],
       comment: null,
       source: "pull",
@@ -153,7 +154,7 @@ describe("applyDiff", () => {
 
   it("updates lists metadata", async () => {
     const remoteLists: ParsedList[] = [
-      { id: "list_new", name: "New List", type: "CUSTOM", count: 3 },
+      { id: "list_new", name: "New List", type: 1, count: 3 },
     ];
 
     await applyDiff(store, remoteLists, [], new Map());
@@ -161,6 +162,7 @@ describe("applyDiff", () => {
     const lists = await store.readLists();
     expect(lists).toHaveLength(1);
     expect(lists[0].name).toBe("New List");
+    expect(lists[0].type).toBe(1);
     expect(lists[0].removedRemote).toBe(false);
   });
 
@@ -169,7 +171,7 @@ describe("applyDiff", () => {
       {
         id: "list_old",
         name: "Old List",
-        type: "CUSTOM",
+        type: 1,
         count: 5,
         lastSeenRemote: "2026-03-28T12:00:00Z",
         removedRemote: false,

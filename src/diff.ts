@@ -35,6 +35,7 @@ export async function applyDiff(
   const updatedLists: ListMetadata[] = [];
 
   for (const remote of remoteLists) {
+    if (remote.id === null) continue; // Skip built-in lists with no ID
     updatedLists.push({
       id: remote.id,
       name: remote.name,
@@ -75,7 +76,7 @@ export async function applyDiff(
       name: remote.name,
       lat: remote.lat,
       lng: remote.lng,
-      googleMapsUrl: remote.googleMapsUrl,
+      address: remote.address,
       comment: remote.comment,
       placeId: remote.placeId,
     };
@@ -89,7 +90,7 @@ export async function applyDiff(
         id: remote.placeId,
         name: remote.name,
         coordinates: { lat: remote.lat, lng: remote.lng },
-        googleMapsUrl: remote.googleMapsUrl,
+        address: remote.address,
         lists: placeToLists.get(remote.placeId) ?? [],
         comment: remote.comment,
         source: "pull",
@@ -105,7 +106,7 @@ export async function applyDiff(
       // Updated place
       existing.name = remote.name;
       existing.coordinates = { lat: remote.lat, lng: remote.lng };
-      existing.googleMapsUrl = remote.googleMapsUrl;
+      existing.address = remote.address;
       existing.comment = remote.comment;
       existing.lists = placeToLists.get(remote.placeId) ?? existing.lists;
       existing.contentHash = newHash;
