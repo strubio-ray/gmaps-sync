@@ -8,14 +8,15 @@ import { Store } from "./store.js";
 import { initSession, checkSession, interceptMasResponse } from "./session.js";
 import { pull } from "./pull.js";
 import { parseLists } from "./parser.js";
-import { installSchedule, uninstallSchedule } from "./scheduling.js";
 
 const program = new Command();
+
+const JITTER_MINUTES = 60;
 
 program
   .name("gmaps-sync")
   .description("One-way sync from Google Maps saved places to local JSON")
-  .version("0.1.0");
+  .version("0.2.0");
 
 function getStore(
   profile: string,
@@ -64,9 +65,9 @@ program
     const { browserProfileDir, store } = getStore(opts.profile, config);
 
     // Jitter: random delay when run by scheduler (non-TTY)
-    if (!process.stdout.isTTY && config.sync.jitterMinutes > 0) {
+    if (!process.stdout.isTTY && JITTER_MINUTES > 0) {
       const jitterMs = Math.floor(
-        Math.random() * config.sync.jitterMinutes * 60 * 1000,
+        Math.random() * JITTER_MINUTES * 60 * 1000,
       );
       console.log(`Jitter delay: ${Math.round(jitterMs / 1000)}s`);
       await new Promise((resolve) => setTimeout(resolve, jitterMs));
@@ -178,20 +179,6 @@ program
     }
 
     await session.context!.close();
-  });
-
-// --- schedule ---
-program
-  .command("schedule")
-  .description("Install or remove the daily sync schedule (macOS launchd)")
-  .option("--profile <name>", "Profile name", "default")
-  .option("--remove", "Remove the schedule", false)
-  .action((opts: { profile: string; remove: boolean }) => {
-    if (opts.remove) {
-      uninstallSchedule();
-    } else {
-      installSchedule(opts.profile);
-    }
   });
 
 program.parse();
