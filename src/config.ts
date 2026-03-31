@@ -13,8 +13,6 @@ export const DEFAULT_CONFIG: AppConfig = {
     },
   },
   sync: {
-    intervalHours: 24,
-    jitterMinutes: 60,
     delayBetweenListsMs: [2000, 5000],
     navigationTimeoutMs: 30000,
     maxConsecutiveFailures: 2,
