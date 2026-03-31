@@ -14,9 +14,19 @@ function xmlEscape(s: string): string {
     .replace(/"/g, "&quot;");
 }
 
+function resolveBinPath(): string {
+  try {
+    return execFileSync("which", ["gmaps-sync"], { encoding: "utf-8" }).trim();
+  } catch {
+    // Fallback for development (running via tsx/npx)
+    return process.argv[1];
+  }
+}
+
 function generatePlist(profile: string): string {
   const logDir = join(homedir(), ".gmaps-sync", "logs");
-  const binPath = process.argv[1];
+  const nodePath = process.execPath;
+  const binPath = resolveBinPath();
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -26,7 +36,7 @@ function generatePlist(profile: string): string {
     <string>${PLIST_NAME}</string>
     <key>ProgramArguments</key>
     <array>
-        <string>node</string>
+        <string>${nodePath}</string>
         <string>${binPath}</string>
         <string>pull</string>
         <string>--profile</string>
