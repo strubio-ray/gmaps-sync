@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **gmaps-sync** is a CLI tool that maintains a one-way sync from Google Maps saved places to a local JSON data store. It uses Playwright for browser automation to scrape Google Maps API responses, parse them via a schema-driven approach, and persist places as individual JSON files.
 
-Target platform: macOS. Uses launchd for scheduling.
+Target platform: macOS. Scheduling via `brew services` (Homebrew service DSL).
 
 ## Repository Layout
 
@@ -49,8 +49,7 @@ npx vitest run tests/parser.test.ts
 ### Supporting Modules
 
 - **config.ts** — JSON config at `~/.gmaps-sync/config.json` with defaults. Multi-profile support (isolated browser sessions and data dirs per Google account).
-- **scheduling.ts** — Installs/removes macOS launchd plist for daily automated pulls.
-- **cli.ts** — Commander.js entry point. Commands: `init`, `pull`, `status`, `prune`, `schema-check`, `schedule`.
+- **cli.ts** — Commander.js entry point. Commands: `init`, `pull`, `status`, `prune`, `schema-check`.
 
 ### Key Design Decisions
 
