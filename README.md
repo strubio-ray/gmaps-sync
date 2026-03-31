@@ -42,15 +42,15 @@ Shows last pull time, sync status, list count, and place count.
 ### 4. Schedule daily sync
 
 ```bash
-gmaps-sync schedule
+brew services start gmaps-sync
 ```
 
-Installs a launchd job that runs `pull` daily at 6:00 AM with random jitter (0-60 min).
+Registers a launchd job that runs `pull` daily at 6:00 AM with random jitter (0-60 min). Managed by Homebrew — `brew uninstall` automatically stops the service.
 
-To remove the schedule:
+To stop the schedule:
 
 ```bash
-gmaps-sync schedule --remove
+brew services stop gmaps-sync
 ```
 
 ## Commands
@@ -62,7 +62,6 @@ gmaps-sync schedule --remove
 | `status` | Show sync status |
 | `prune` | Remove locally flagged-as-removed places |
 | `schema-check` | Validate schema against a test pull (dry run) |
-| `schedule` | Install or remove the daily sync schedule |
 
 All commands accept `--profile <name>` (default: `"default"`) for multi-account support.
 
@@ -90,9 +89,6 @@ All commands accept `--profile <name>` (default: `"default"`) for multi-account 
 ```
 ~/.gmaps-sync/
 ├── config.json                          # Optional config overrides
-├── logs/
-│   ├── pull-stdout.log                  # launchd stdout
-│   └── pull-stderr.log                  # launchd stderr
 └── profiles/
     └── default/
         ├── browser/                     # Playwright persistent session
@@ -105,6 +101,8 @@ All commands accept `--profile <name>` (default: `"default"`) for multi-account 
             └── snapshots/               # Raw API responses (30-day retention)
 ```
 
+Service logs are at `$(brew --prefix)/var/log/gmaps-sync/`.
+
 ## Configuration
 
 Create `~/.gmaps-sync/config.json` to override defaults:
@@ -112,8 +110,6 @@ Create `~/.gmaps-sync/config.json` to override defaults:
 ```json
 {
   "sync": {
-    "intervalHours": 24,
-    "jitterMinutes": 60,
     "delayBetweenListsMs": [2000, 5000],
     "navigationTimeoutMs": 30000,
     "maxConsecutiveFailures": 2
