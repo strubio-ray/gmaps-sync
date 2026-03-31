@@ -40,8 +40,6 @@ export interface ProfileConfig {
 }
 
 export interface SyncConfig {
-  intervalHours: number;
-  jitterMinutes: number;
   delayBetweenListsMs: [number, number];
   navigationTimeoutMs: number;
   maxConsecutiveFailures: number;
