@@ -20,8 +20,6 @@ function makeConfig(overrides?: Partial<AppConfig["sync"]>): AppConfig {
   return {
     profiles: {},
     sync: {
-      intervalHours: 24,
-      jitterMinutes: 0,
       delayBetweenListsMs: [0, 0],
       navigationTimeoutMs: 5000,
       maxConsecutiveFailures: 2,

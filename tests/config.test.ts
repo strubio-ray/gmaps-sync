@@ -25,7 +25,7 @@ describe("loadConfig", () => {
     writeFileSync(join(tempDir, "config.json"), JSON.stringify(partial));
     const config = loadConfig(join(tempDir, "config.json"));
     expect(config.headless).toBe(false);
-    expect(config.sync.intervalHours).toBe(DEFAULT_CONFIG.sync.intervalHours);
+    expect(config.sync.maxConsecutiveFailures).toBe(DEFAULT_CONFIG.sync.maxConsecutiveFailures);
   });
 });
 
