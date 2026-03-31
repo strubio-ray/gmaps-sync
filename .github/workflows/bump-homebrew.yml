@@ -1,0 +1,19 @@
+name: Bump Homebrew Formula
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  homebrew:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: mislav/bump-homebrew-formula-action@v3
+        with:
+          formula-name: gmaps-sync
+          homebrew-tap: strubio-ray/homebrew-tap
+          push-to: strubio-ray/homebrew-tap
+          create-pullrequest: false
+          download-url: https://github.com/${{ github.repository }}/archive/refs/tags/${{ github.ref_name }}.tar.gz
+        env:
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
