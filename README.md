@@ -5,7 +5,7 @@ One-way sync from Google Maps saved places to a local JSON data store. Runs dail
 ## Install
 
 ```bash
-brew tap strubio-ray/tap
+brew tap rubio-enterprises/tap
 brew install gmaps-sync
 ```
 
@@ -127,7 +127,7 @@ When Google changes their API response format, update the array index paths in `
 ## Development
 
 ```bash
-git clone https://github.com/strubio-ray/gmaps-sync.git
+git clone https://github.com/Rubio-Enterprises/gmaps-sync.git
 cd gmaps-sync
 npm install
 npm test             # Run tests
