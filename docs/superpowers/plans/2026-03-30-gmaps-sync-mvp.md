@@ -46,6 +46,7 @@ gmaps-sync/
 ### Task 1: Project Scaffolding
 
 **Files:**
+
 - Create: `package.json`
 - Create: `tsconfig.json`
 - Create: `vitest.config.ts`
@@ -181,6 +182,7 @@ git commit -m "chore: scaffold project with typescript, vitest, playwright"
 ### Task 2: Types
 
 **Files:**
+
 - Create: `src/types.ts`
 
 - [ ] **Step 1: Define all shared interfaces**
@@ -307,6 +309,7 @@ git commit -m "feat: add shared type definitions"
 This is the highest-priority, most-testable component. The parser takes raw Google Maps responses (deeply nested arrays) and extracts structured data using a declarative schema.
 
 **Files:**
+
 - Create: `schema.json`
 - Create: `src/parser.ts`
 - Create: `tests/fixtures/lists-response.json`
@@ -631,6 +634,7 @@ git commit -m "feat: add schema-based parser with tests"
 ### Task 4: Config
 
 **Files:**
+
 - Create: `src/config.ts`
 - Create: `tests/config.test.ts`
 
@@ -797,6 +801,7 @@ git commit -m "feat: add config loading with defaults and profile resolution"
 Handles all file I/O — atomic writes, reading/writing places, lists, sync state, and snapshots.
 
 **Files:**
+
 - Create: `src/store.ts`
 - Create: `tests/store.test.ts`
 
@@ -1086,6 +1091,7 @@ git commit -m "feat: add store for atomic file I/O with places, lists, sync stat
 Compares parsed remote data against local store. Remote always wins.
 
 **Files:**
+
 - Create: `src/diff.ts`
 - Create: `tests/diff.test.ts`
 
@@ -1459,6 +1465,7 @@ git commit -m "feat: add diff engine with content hashing and soft-delete"
 ### Task 7: Notifications
 
 **Files:**
+
 - Create: `src/notifications.ts`
 
 - [ ] **Step 1: Implement notifications.ts**
@@ -1521,6 +1528,7 @@ git commit -m "feat: add macOS notification helpers"
 Manages Playwright browser lifecycle — headed mode for init, headless for sync.
 
 **Files:**
+
 - Create: `src/session.ts`
 
 - [ ] **Step 1: Implement session.ts**
@@ -1664,6 +1672,7 @@ git commit -m "feat: add session manager with headed init and headless health ch
 Orchestrates the full pull: session check, list discovery, place extraction, diff.
 
 **Files:**
+
 - Create: `src/pull.ts`
 
 - [ ] **Step 1: Implement pull.ts**
@@ -1909,6 +1918,7 @@ git commit -m "feat: add pull engine with network interception and pagination"
 ### Task 10: Enrichment
 
 **Files:**
+
 - Create: `src/enrich.ts`
 - Create: `tests/enrich.test.ts`
 
@@ -2114,6 +2124,7 @@ git commit -m "feat: add enrichment via Google Places API"
 Ties everything together with Commander commands.
 
 **Files:**
+
 - Create: `src/cli.ts`
 
 - [ ] **Step 1: Implement cli.ts**
@@ -2423,6 +2434,7 @@ git commit -m "fix: resolve any build/test issues"
 ### Task 13: Scheduling (launchd plist)
 
 **Files:**
+
 - Create: `src/scheduling.ts` (helper to install/uninstall the plist)
 
 - [ ] **Step 1: Implement scheduling.ts**

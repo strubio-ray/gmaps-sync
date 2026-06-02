@@ -47,10 +47,7 @@ export async function enrichUnenrichedPlaces(
   db: Db,
   client: PlacesApiClient,
 ): Promise<{ enriched: number; failed: number }> {
-  const unenriched = await db
-    .select()
-    .from(places)
-    .where(isNull(places.enrichedAt));
+  const unenriched = await db.select().from(places).where(isNull(places.enrichedAt));
 
   let enriched = 0;
   let failed = 0;
@@ -75,12 +72,19 @@ export async function enrichUnenrichedPlaces(
       // Update the PK via raw SQL and cascade FK references
       // We need to access the underlying sqlite instance through Drizzle's internals.
       // Use Drizzle's prepared statement approach by running raw SQL via the db's session.
-      const session = (db as unknown as { session: { client: import("better-sqlite3").Database } }).session;
+      const session = (db as unknown as { session: { client: import("better-sqlite3").Database } })
+        .session;
       const sqlite = session.client;
 
-      sqlite.prepare("UPDATE sync_metadata SET google_place_id = ? WHERE google_place_id = ?").run(resolvedId, place.googlePlaceId);
-      sqlite.prepare("UPDATE place_lists SET google_place_id = ? WHERE google_place_id = ?").run(resolvedId, place.googlePlaceId);
-      sqlite.prepare("UPDATE places SET google_place_id = ? WHERE google_place_id = ?").run(resolvedId, place.googlePlaceId);
+      sqlite
+        .prepare("UPDATE sync_metadata SET google_place_id = ? WHERE google_place_id = ?")
+        .run(resolvedId, place.googlePlaceId);
+      sqlite
+        .prepare("UPDATE place_lists SET google_place_id = ? WHERE google_place_id = ?")
+        .run(resolvedId, place.googlePlaceId);
+      sqlite
+        .prepare("UPDATE places SET google_place_id = ? WHERE google_place_id = ?")
+        .run(resolvedId, place.googlePlaceId);
     }
 
     const details = await client.getPlaceDetails(resolvedId);

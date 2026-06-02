@@ -14,9 +14,10 @@
 
 ---
 
-### Task 1: Monorepo Root Scaffolding
+## Task 1: Monorepo Root Scaffolding
 
 **Files:**
+
 - Create: `pnpm-workspace.yaml`
 - Create: `tsconfig.base.json`
 - Modify: `package.json` (convert to workspace root)
@@ -110,9 +111,10 @@ git add -A && git commit -m "chore: convert to pnpm monorepo workspace root"
 
 ---
 
-### Task 2: Core Package — Scaffolding & Types
+## Task 2: Core Package — Scaffolding & Types
 
 **Files:**
+
 - Create: `packages/core/package.json`
 - Create: `packages/core/tsconfig.json`
 - Create: `packages/core/src/types.ts`
@@ -211,9 +213,10 @@ git add -A && git commit -m "feat: scaffold core package with types"
 
 ---
 
-### Task 3: Core Package — Drizzle Schema & Database
+## Task 3: Core Package — Drizzle Schema & Database
 
 **Files:**
+
 - Create: `packages/core/src/schema.ts`
 - Create: `packages/core/src/db.ts`
 - Create: `drizzle.config.ts`
@@ -423,9 +426,10 @@ git add -A && git commit -m "feat(core): add drizzle schema and database connect
 
 ---
 
-### Task 4: Core Package — Config
+## Task 4: Core Package — Config
 
 **Files:**
+
 - Create: `packages/core/src/config.ts`
 - Create: `packages/core/tests/config.test.ts`
 
@@ -538,9 +542,10 @@ git add -A && git commit -m "feat(core): add simplified config without profiles"
 
 ---
 
-### Task 5: Core Package — Database Migration & Init
+## Task 5: Core Package — Database Migration & Init
 
 **Files:**
+
 - Create: `packages/core/src/migrate.ts`
 - Create: `packages/core/tests/db.test.ts`
 
@@ -869,9 +874,10 @@ git add -A && git commit -m "feat(core): add database migration with all tables 
 
 ---
 
-### Task 6: Sync Package — Scaffolding & Refactored Parser
+## Task 6: Sync Package — Scaffolding & Refactored Parser
 
 **Files:**
+
 - Create: `packages/sync/package.json`
 - Create: `packages/sync/tsconfig.json`
 - Move & Modify: `src/parser.ts` -> `packages/sync/src/parser.ts`
@@ -1202,9 +1208,10 @@ git add -A && git commit -m "feat(sync): scaffold sync package with refactored p
 
 ---
 
-### Task 7: Sync Package — Session, Diff, Pull (Refactored for SQLite)
+## Task 7: Sync Package — Session, Diff, Pull (Refactored for SQLite)
 
 **Files:**
+
 - Create: `packages/sync/src/session.ts`
 - Create: `packages/sync/src/diff.ts`
 - Create: `packages/sync/src/pull.ts`
@@ -1522,6 +1529,7 @@ Expected: PASS
 Create `packages/sync/src/pull.ts`. This replaces the old pull.ts — reads/writes sync_state from SQLite, uses the new diff module. The function signature changes to accept `db: Db` and `config: AppConfig` instead of `store`, `profile`, and `browserProfileDir`.
 
 The implementer should reference the existing `src/pull.ts` for the full 3-phase logic (intercept mas, fetch getlist per list, apply diff) and adapt it to use:
+
 - `db` (Drizzle) instead of `store` (JSON Store) for sync state reads/writes
 - `saveSnapshot`/`cleanOldSnapshots` from `./snapshots.js` instead of `store.saveSnapshot`
 - `config.browserProfileDir` instead of a separate `browserProfileDir` parameter
@@ -1547,9 +1555,10 @@ git add -A && git commit -m "feat(sync): refactor session, diff, pull to use SQL
 
 ---
 
-### Task 8: Core Package — Enrichment Pipeline
+## Task 8: Core Package — Enrichment Pipeline
 
 **Files:**
+
 - Create: `packages/core/src/enrichment.ts`
 - Create: `packages/core/tests/enrichment.test.ts`
 
@@ -1660,6 +1669,7 @@ Expected: FAIL — module not found
 - [ ] **Step 3: Write enrichment module**
 
 Create `packages/core/src/enrichment.ts`. This module:
+
 - Defines the `PlacesApiClient` interface (findPlace, getPlaceDetails)
 - Defines the `PlaceDetailsResult` type with all enrichment fields
 - Implements `enrichUnenrichedPlaces(db, client)` which queries for `enriched_at IS NULL`, resolves legacy IDs via findPlace, fetches details, and updates the places row
@@ -1688,9 +1698,10 @@ git add -A && git commit -m "feat(core): add enrichment pipeline with Places API
 
 ---
 
-### Task 9: Core Package — Embedding Pipeline
+## Task 9: Core Package — Embedding Pipeline
 
 **Files:**
+
 - Create: `packages/core/src/embedding.ts`
 - Create: `packages/core/tests/embedding.test.ts`
 
@@ -1757,6 +1768,7 @@ Expected: FAIL — module not found
 - [ ] **Step 4: Write embedding module**
 
 Create `packages/core/src/embedding.ts`. This module:
+
 - Defines the `EmbeddingModel` interface with `embed(text: string): Promise<Float32Array>`
 - Implements `buildEmbeddingText(place)` which concatenates name, primaryType, editorialSummary, reviewsText, and boolean attributes into a single string for embedding
 - Implements `ensureVecTable(sqlite)` to create the `places_vec` virtual table if it doesn't exist
@@ -1785,9 +1797,10 @@ git add -A && git commit -m "feat(core): add embedding pipeline with sqlite-vec 
 
 ---
 
-### Task 10: Discovery & Push Stubs
+## Task 10: Discovery & Push Stubs
 
 **Files:**
+
 - Create: `packages/discovery/package.json`
 - Create: `packages/discovery/tsconfig.json`
 - Create: `packages/discovery/src/index.ts`
@@ -1798,6 +1811,7 @@ git add -A && git commit -m "feat(core): add embedding pipeline with sqlite-vec 
 - [ ] **Step 1: Create discovery stub**
 
 `packages/discovery/package.json`:
+
 ```json
 {
   "name": "@gmaps/discovery",
@@ -1813,6 +1827,7 @@ git add -A && git commit -m "feat(core): add embedding pipeline with sqlite-vec 
 ```
 
 `packages/discovery/tsconfig.json`:
+
 ```json
 {
   "extends": "../../tsconfig.base.json",
@@ -1824,6 +1839,7 @@ git add -A && git commit -m "feat(core): add embedding pipeline with sqlite-vec 
 ```
 
 `packages/discovery/src/index.ts`:
+
 ```typescript
 // Discovery package — not yet implemented.
 ```
@@ -1831,6 +1847,7 @@ git add -A && git commit -m "feat(core): add embedding pipeline with sqlite-vec 
 - [ ] **Step 2: Create push stub**
 
 `packages/push/package.json`:
+
 ```json
 {
   "name": "@gmaps/push",
@@ -1846,6 +1863,7 @@ git add -A && git commit -m "feat(core): add embedding pipeline with sqlite-vec 
 ```
 
 `packages/push/tsconfig.json`:
+
 ```json
 {
   "extends": "../../tsconfig.base.json",
@@ -1857,6 +1875,7 @@ git add -A && git commit -m "feat(core): add embedding pipeline with sqlite-vec 
 ```
 
 `packages/push/src/index.ts`:
+
 ```typescript
 // Push package — not yet implemented.
 ```
@@ -1869,9 +1888,10 @@ git add -A && git commit -m "chore: scaffold discovery and push package stubs"
 
 ---
 
-### Task 11: CLI Package
+## Task 11: CLI Package
 
 **Files:**
+
 - Create: `packages/cli/package.json`
 - Create: `packages/cli/tsconfig.json`
 - Create: `packages/cli/src/cli.ts`
@@ -1929,9 +1949,10 @@ git add -A && git commit -m "feat(cli): add places CLI with init, pull, status, 
 
 ---
 
-### Task 12: Clean Up & Verify
+## Task 12: Clean Up & Verify
 
 **Files:**
+
 - Delete: `src/` (entire directory)
 - Delete: `schema.json` (moved to packages/sync/)
 - Delete: `tests/` (replaced by per-package tests)

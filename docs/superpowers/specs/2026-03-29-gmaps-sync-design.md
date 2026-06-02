@@ -389,6 +389,7 @@ gmaps-sync/
 | Commander | CLI framework |
 | write-file-atomic | Safe file writes |
 | vitest | Testing |
+
 **Not in the stack:**
 
 - No Stagehand / no LLM dependency — pull-only needs no AI-powered UI interaction

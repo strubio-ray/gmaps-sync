@@ -105,6 +105,7 @@ Google has removed the `/maps/saved` URL (returns 404). Saved places are now acc
 ## CLI (`cli.ts`)
 
 The `schema-check` command navigates to `https://www.google.com/maps/saved` and checks for the XSSI prefix. Update it to:
+
 - Navigate to the new saved places URL
 - Intercept the `mas` response instead
 - Remove the XSSI prefix check
@@ -127,6 +128,7 @@ The `schema-check` command navigates to `https://www.google.com/maps/saved` and 
 | `src/diff.ts` | Update content hash fields |
 | `tests/parser.test.ts` | New fixtures, new expected outputs |
 | `src/cli.ts` | Update `schema-check` command for new URL and response format |
+
 ## Verification
 
 1. `npm run build` — compiles cleanly

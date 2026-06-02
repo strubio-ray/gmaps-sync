@@ -1,4 +1,4 @@
-import { sqliteTable, text, real, integer, primaryKey, index } from "drizzle-orm/sqlite-core";
+import { index, integer, primaryKey, real, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const places = sqliteTable("places", {
   googlePlaceId: text("google_place_id").primaryKey(),
@@ -70,9 +70,7 @@ export const placeLists = sqliteTable(
       .notNull()
       .references(() => lists.id),
   },
-  (table) => [
-    primaryKey({ columns: [table.googlePlaceId, table.listId] }),
-  ],
+  (table) => [primaryKey({ columns: [table.googlePlaceId, table.listId] })],
 );
 
 export const syncMetadata = sqliteTable("sync_metadata", {

@@ -21,7 +21,7 @@ export function cleanOldSnapshots(snapshotsDir: string, retentionDays: number): 
     const path = join(snapshotsDir, file);
     const dateStr = file.split("T")[0];
     const fileDate = new Date(dateStr).getTime();
-    if (!isNaN(fileDate) && fileDate < cutoff) {
+    if (!Number.isNaN(fileDate) && fileDate < cutoff) {
       unlinkSync(path);
       removed++;
     }

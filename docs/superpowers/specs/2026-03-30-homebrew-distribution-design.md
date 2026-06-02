@@ -25,6 +25,7 @@ A Node.js formula in `strubio-ray/homebrew-tap/Formula/gmaps-sync.rb`:
 ### 3. GitHub Actions workflow
 
 `.github/workflows/bump-homebrew.yml` triggered on `v*` tag push. Uses `mislav/bump-homebrew-formula-action@v3` with:
+
 - `formula-name: gmaps-sync`
 - `homebrew-tap: strubio-ray/homebrew-tap`
 - `push-to: strubio-ray/homebrew-tap`
@@ -35,6 +36,7 @@ A Node.js formula in `strubio-ray/homebrew-tap/Formula/gmaps-sync.rb`:
 ### 4. Fix scheduling.ts path resolution
 
 Replace `process.argv[1]` with:
+
 - `which gmaps-sync` via `execFileSync("which", ["gmaps-sync"])` for the binary path. Falls back to `process.argv[1]` if `which` fails (e.g., running via `tsx` in development).
 - `process.execPath` for the node binary (always correct — it's the currently running node process).
 

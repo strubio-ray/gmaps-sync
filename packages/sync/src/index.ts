@@ -1,4 +1,4 @@
-export { pull, type PullResult, type PullOptions } from "./pull.js";
-export { initSession, checkSession } from "./session.js";
-export { parseLists, parsePlaces, getSchemaVersion } from "./parser.js";
 export { applyDiff, computeContentHash, type DiffResult } from "./diff.js";
+export { getSchemaVersion, parseLists, parsePlaces } from "./parser.js";
+export { type PullOptions, type PullResult, pull } from "./pull.js";
+export { checkSession, initSession } from "./session.js";

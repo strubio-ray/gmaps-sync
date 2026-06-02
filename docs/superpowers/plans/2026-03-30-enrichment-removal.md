@@ -10,9 +10,10 @@
 
 ---
 
-### Task 1: Remove enrichment module and tests
+## Task 1: Remove enrichment module and tests
 
 **Files:**
+
 - Delete: `src/enrich.ts`
 - Delete: `tests/enrich.test.ts`
 
@@ -37,9 +38,10 @@ git commit -m "refactor: remove enrichment module and tests"
 
 ---
 
-### Task 2: Remove enrichment types
+## Task 2: Remove enrichment types
 
 **Files:**
+
 - Modify: `src/types.ts`
 
 The `EnrichedData` interface (lines 15-22), `Place.enriched` field (line 36), `EnrichmentConfig` interface (lines 60-62), and `AppConfig.enrichment` field (line 73) must all be removed.
@@ -102,9 +104,10 @@ git commit -m "refactor: remove enrichment types from types.ts"
 
 ---
 
-### Task 3: Remove enrichment from config
+## Task 3: Remove enrichment from config
 
 **Files:**
+
 - Modify: `src/config.ts`
 
 Remove the `enrichment` block from `DEFAULT_CONFIG` and the merge line in `loadConfig`.
@@ -140,9 +143,10 @@ git commit -m "refactor: remove enrichment config"
 
 ---
 
-### Task 4: Remove enrich command from CLI
+## Task 4: Remove enrich command from CLI
 
 **Files:**
+
 - Modify: `src/cli.ts`
 
 Remove the `enrichPlaces` import and the entire `enrich` command block.
@@ -216,9 +220,10 @@ git commit -m "refactor: remove enrich command from CLI"
 
 ---
 
-### Task 5: Remove enrichment from diff engine
+## Task 5: Remove enrichment from diff engine
 
 **Files:**
+
 - Modify: `src/diff.ts`
 
 Remove the `enriched: null` field from new place initialization.
@@ -248,9 +253,10 @@ git commit -m "refactor: remove enriched field from diff engine"
 
 ---
 
-### Task 6: Update test mock objects
+## Task 6: Update test mock objects
 
 **Files:**
+
 - Modify: `tests/diff.test.ts`
 - Modify: `tests/store.test.ts`
 
@@ -281,9 +287,10 @@ git commit -m "test: remove enriched field from mock place objects"
 
 ---
 
-### Task 7: Update documentation
+## Task 7: Update documentation
 
 **Files:**
+
 - Modify: `docs/superpowers/specs/2026-03-29-gmaps-sync-design.md`
 - Modify: `docs/superpowers/specs/2026-03-30-api-response-format-update.md`
 - Modify: `docs/superpowers/plans/2026-03-30-api-response-format-update.md`
@@ -302,7 +309,7 @@ In `docs/superpowers/specs/2026-03-29-gmaps-sync-design.md`:
 │  └──────────────────────────────────────────────────────┘   │
 ```
 
-2. Remove "Section 5. Enrichment" (lines 239-248):
+1. Remove "Section 5. Enrichment" (lines 239-248):
 
 ```markdown
 ### 5. Enrichment (enrich.ts)
@@ -317,7 +324,7 @@ On-demand command, not part of the pull pipeline.
 - Cost: ~$17 per 1000 Place Details requests
 ```
 
-3. Remove `"enriched": null` from the place JSON example (line 302) and the enriched example block (lines 306-317):
+1. Remove `"enriched": null` from the place JSON example (line 302) and the enriched example block (lines 306-317):
 
 ```markdown
   "enriched": null
@@ -341,13 +348,13 @@ The `enriched` field is `null` by default. After `gmaps-sync enrich`:
 \```
 ```
 
-4. Remove the `gmaps-sync enrich` row from the CLI table (line 344):
+1. Remove the `gmaps-sync enrich` row from the CLI table (line 344):
 
 ```markdown
 | `gmaps-sync enrich [--all\|--list <id>\|--place <id>]` | Enrich places via Google Places API |
 ```
 
-5. Remove the `enrichment` block from the config JSON example (lines 381-383):
+1. Remove the `enrichment` block from the config JSON example (lines 381-383):
 
 ```json
   "enrichment": {
@@ -355,19 +362,19 @@ The `enriched` field is `null` by default. After `gmaps-sync enrich`:
   },
 ```
 
-6. Remove `enrich.ts` from the project structure listing (line 408):
+1. Remove `enrich.ts` from the project structure listing (line 408):
 
 ```
     enrich.ts           — Google Places API enrichment
 ```
 
-7. Remove the `@googlemaps/google-maps-services-js` row from the tech stack table (line 428):
+1. Remove the `@googlemaps/google-maps-services-js` row from the tech stack table (line 428):
 
 ```markdown
 | @googlemaps/google-maps-services-js | Places API enrichment (optional, used by `enrich` only) |
 ```
 
-8. Remove "On-demand enrichment" from key design decisions (line 452):
+1. Remove "On-demand enrichment" from key design decisions (line 452):
 
 ```markdown
 8. **On-demand enrichment.** Keeps the pull pipeline free of external API dependencies and costs. Users opt into enrichment when they need it.
@@ -413,7 +420,7 @@ git commit -m "docs: remove all enrichment references from documentation"
 
 ---
 
-### Task 8: Final verification
+## Task 8: Final verification
 
 - [ ] **Step 1: TypeScript compilation check**
 

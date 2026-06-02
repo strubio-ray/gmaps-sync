@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import type { ParsedList, ParsedPlace } from "@gmaps/core";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -70,9 +70,7 @@ function walkPathRequired(
     return null;
   }
   if (expectedType && typeof result !== expectedType) {
-    throw new Error(
-      `${fieldName}: expected ${expectedType} at ${path}, got ${typeof result}`,
-    );
+    throw new Error(`${fieldName}: expected ${expectedType} at ${path}, got ${typeof result}`);
   }
   return result;
 }
@@ -86,9 +84,7 @@ export function parseLists(raw: string): ParsedList[] {
   const json = JSON.parse(stripXssiPrefix(raw));
   const entries = walkPath(json, schema.lists.root);
   if (!Array.isArray(entries)) {
-    throw new Error(
-      `lists.root: expected array at ${schema.lists.root}, got ${typeof entries}`,
-    );
+    throw new Error(`lists.root: expected array at ${schema.lists.root}, got ${typeof entries}`);
   }
 
   return entries.map((entry: unknown, i: number) => {

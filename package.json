@@ -2,11 +2,13 @@
   "name": "google-maps-places",
   "private": true,
   "type": "module",
+  "packageManager": "pnpm@9.15.9",
   "scripts": {
     "build": "tsc -b",
     "test": "vitest run",
     "test:watch": "vitest",
-    "lint": "tsc -b --noEmit"
+    "lint": "biome check .",
+    "typecheck": "tsc -b --noEmit"
   },
   "pnpm": {
     "onlyBuiltDependencies": [

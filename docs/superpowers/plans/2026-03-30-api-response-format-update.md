@@ -10,9 +10,10 @@
 
 ---
 
-### Task 1: Update types
+## Task 1: Update types
 
 **Files:**
+
 - Modify: `src/types.ts`
 
 - [ ] **Step 1: Update `ParsedList.type` from `string` to `number`**
@@ -86,9 +87,10 @@ git commit -m "refactor: update types for new Google Maps API response format"
 
 ---
 
-### Task 2: Update schema.json
+## Task 2: Update schema.json
 
 **Files:**
+
 - Modify: `schema.json`
 
 - [ ] **Step 1: Replace schema.json with v2 paths**
@@ -131,9 +133,10 @@ git commit -m "refactor: update schema.json to v2 for new API response paths"
 
 ---
 
-### Task 3: Update parser and write tests
+## Task 3: Update parser and write tests
 
 **Files:**
+
 - Modify: `src/parser.ts`
 - Modify: `tests/parser.test.ts`
 
@@ -408,9 +411,10 @@ git commit -m "feat: update parser for new mas/getlist API response format"
 
 ---
 
-### Task 4: Update diff engine and tests
+## Task 4: Update diff engine and tests
 
 **Files:**
+
 - Modify: `src/diff.ts`
 - Modify: `tests/diff.test.ts`
 
@@ -663,36 +667,46 @@ git commit -m "refactor: update diff engine for new API response format"
 
 ---
 
-### Task 5: Update store tests
+## Task 5: Update store tests
 
 **Files:**
+
 - Modify: `tests/store.test.ts`
 
 - [ ] **Step 1: Update store tests — replace `googleMapsUrl` with `address`**
 
 In `tests/store.test.ts`, update all `Place` objects. Replace every occurrence of:
+
 ```typescript
 googleMapsUrl: "https://maps.google.com/place/test",
 ```
+
 with:
+
 ```typescript
 address: "123 Test St",
 ```
 
 And replace:
+
 ```typescript
 googleMapsUrl: "https://maps.google.com/a",
 ```
+
 with:
+
 ```typescript
 address: "",
 ```
 
 Also update `ListMetadata` type values from strings to numbers:
+
 ```typescript
 type: "WANT_TO_GO",
 ```
+
 becomes:
+
 ```typescript
 type: 3,
 ```
@@ -711,9 +725,10 @@ git commit -m "test: update store tests for new Place type"
 
 ---
 
-### Task 6: Update session.ts
+## Task 6: Update session.ts
 
 **Files:**
+
 - Modify: `src/session.ts`
 
 - [ ] **Step 1: Update SAVED_PLACES_URL and initSession**
@@ -871,9 +886,10 @@ git commit -m "feat: update session to use new saved places URL and mas detectio
 
 ---
 
-### Task 8: Update pull engine
+## Task 8: Update pull engine
 
 **Files:**
+
 - Modify: `src/pull.ts`
 
 - [ ] **Step 1: Rewrite pull.ts for new API flow**
@@ -1096,9 +1112,10 @@ git commit -m "feat: update pull engine for mas/getlist endpoints with fetch-bas
 
 ---
 
-### Task 9: Update CLI schema-check command
+## Task 9: Update CLI schema-check command
 
 **Files:**
+
 - Modify: `src/cli.ts`
 
 - [ ] **Step 1: Update the schema-check command**
@@ -1165,7 +1182,7 @@ git commit -m "fix: update schema-check command for new mas endpoint"
 
 ---
 
-### Task 10: Full build and test verification
+## Task 10: Full build and test verification
 
 - [ ] **Step 1: Run full build**
 
@@ -1185,7 +1202,7 @@ git push origin feat/gmaps-sync-mvp
 
 ---
 
-### Task 11: Manual integration testing (on macOS host)
+## Task 11: Manual integration testing (on macOS host)
 
 - [ ] **Step 1: Test init**
 

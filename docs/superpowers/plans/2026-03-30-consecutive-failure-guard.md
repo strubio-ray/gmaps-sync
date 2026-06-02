@@ -26,6 +26,7 @@
 ### Task 1: Remove Notification Types and Add `maxConsecutiveFailures`
 
 **Files:**
+
 - Modify: `src/types.ts:42-63`
 
 - [ ] **Step 1: Update `SyncConfig` to add `maxConsecutiveFailures` and remove `retryOnSessionFailure`**
@@ -75,6 +76,7 @@ git add src/types.ts && git commit -m "refactor: replace retryOnSessionFailure w
 ### Task 2: Update Config Defaults
 
 **Files:**
+
 - Modify: `src/config.ts:1-48`
 
 - [ ] **Step 1: Update `DEFAULT_CONFIG` to use `maxConsecutiveFailures` and remove notifications**
@@ -132,6 +134,7 @@ git add src/config.ts && git commit -m "refactor: update config defaults for max
 ### Task 3: Delete Notifications Module, Update `pull()` — Add Failure Guard
 
 **Files:**
+
 - Delete: `src/notifications.ts`
 - Modify: `src/pull.ts:1-173`
 
@@ -530,6 +533,7 @@ git add src/notifications.ts src/pull.ts tests/pull.test.ts && git commit -m "fe
 ### Task 4: Add `--force` Flag to CLI
 
 **Files:**
+
 - Modify: `src/cli.ts:52-83`
 
 - [ ] **Step 1: Add `--force` option and pass it to `pull()`**
@@ -652,6 +656,7 @@ Expected: No type errors.
 ### Task 6: Update CLAUDE.md
 
 **Files:**
+
 - Modify: `CLAUDE.md`
 
 - [ ] **Step 1: Remove notification references and update failure behavior description**

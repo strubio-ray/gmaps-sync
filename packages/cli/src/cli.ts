@@ -1,21 +1,21 @@
 #!/usr/bin/env node
 
-import { Command } from "commander";
 import { mkdirSync } from "node:fs";
 import {
-  createDb,
-  runMigrations,
-  loadConfig,
   BASE_DIR,
+  createDb,
   DB_PATH,
-  syncState,
-  places,
   lists,
-  syncMetadata,
-  placeLists,
+  loadConfig,
   pendingMutations,
+  placeLists,
+  places,
+  runMigrations,
+  syncMetadata,
+  syncState,
 } from "@gmaps/core";
-import { pull, initSession } from "@gmaps/sync";
+import { initSession, pull } from "@gmaps/sync";
+import { Command } from "commander";
 import { eq, isNull, sql } from "drizzle-orm";
 
 const JITTER_MINUTES = 60;
@@ -85,9 +85,7 @@ program
         );
       }
 
-      console.log(
-        `Lists: ${result.listsProcessed} processed, ${result.listsFailed} failed`,
-      );
+      console.log(`Lists: ${result.listsProcessed} processed, ${result.listsFailed} failed`);
 
       const unenrichedCount = db
         .select({ count: sql<number>`count(*)` })
@@ -120,10 +118,7 @@ program
         .where(eq(lists.removedRemote, 1))
         .get();
 
-      const totalPlaces = db
-        .select({ count: sql<number>`count(*)` })
-        .from(places)
-        .get();
+      const totalPlaces = db.select({ count: sql<number>`count(*)` }).from(places).get();
       const enrichedCount = db
         .select({ count: sql<number>`count(*)` })
         .from(places)
@@ -154,9 +149,7 @@ program
   .command("enrich")
   .description("Enrich places via Google Places API (placeholder)")
   .action(() => {
-    console.log(
-      "Enrichment requires a Google Places API key. Set GOOGLE_PLACES_API_KEY env var.",
-    );
+    console.log("Enrichment requires a Google Places API key. Set GOOGLE_PLACES_API_KEY env var.");
     console.log("Implementation pending — PlacesApiClient not yet wired.");
   });
 
@@ -176,9 +169,7 @@ program
 
       console.log(`Pending mutations (${mutations.length}):`);
       for (const m of mutations) {
-        console.log(
-          `  [${m.id}] type=${m.type} status=${m.status} placeId=${m.placeId ?? "n/a"}`,
-        );
+        console.log(`  [${m.id}] type=${m.type} status=${m.status} placeId=${m.placeId ?? "n/a"}`);
       }
     } finally {
       sqlite.close();
@@ -196,10 +187,7 @@ program
       const toRemove = db
         .select({ googlePlaceId: places.googlePlaceId, name: places.name })
         .from(places)
-        .innerJoin(
-          syncMetadata,
-          eq(places.googlePlaceId, syncMetadata.googlePlaceId),
-        )
+        .innerJoin(syncMetadata, eq(places.googlePlaceId, syncMetadata.googlePlaceId))
         .where(eq(syncMetadata.removedRemote, 1))
         .all();
 

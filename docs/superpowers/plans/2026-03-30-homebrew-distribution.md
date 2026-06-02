@@ -20,6 +20,7 @@
 | `.github/workflows/bump-homebrew.yml` | Create | Auto-update formula on `v*` tag push |
 
 External (not in this repo):
+
 | Action | Details |
 |--------|---------|
 | `strubio-ray/homebrew-tap` | Push initial `Formula/gmaps-sync.rb` |
@@ -30,6 +31,7 @@ External (not in this repo):
 ### Task 1: Add MIT License and Update package.json
 
 **Files:**
+
 - Create: `LICENSE`
 - Modify: `package.json`
 
@@ -76,6 +78,7 @@ git add LICENSE package.json && git commit -m "chore: add MIT license, mark pack
 ### Task 2: Fix scheduling.ts Path Resolution
 
 **Files:**
+
 - Modify: `src/scheduling.ts:17-30`
 
 - [ ] **Step 1: Add a helper function to resolve the gmaps-sync binary path**
@@ -147,6 +150,7 @@ git add src/scheduling.ts && git commit -m "fix: resolve binary paths via which 
 ### Task 3: Create GitHub Actions Workflow
 
 **Files:**
+
 - Create: `.github/workflows/bump-homebrew.yml`
 
 - [ ] **Step 1: Create the workflow directory**

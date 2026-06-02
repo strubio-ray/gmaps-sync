@@ -30,6 +30,7 @@
 ### Task 1: Remove Orphaned Config Fields from Types
 
 **Files:**
+
 - Modify: `src/types.ts:42-48`
 
 - [ ] **Step 1: Remove `intervalHours` and `jitterMinutes` from `SyncConfig`**
@@ -61,6 +62,7 @@ git add src/types.ts && git commit -m "refactor!: remove intervalHours and jitte
 ### Task 2: Update Config Defaults
 
 **Files:**
+
 - Modify: `src/config.ts:15-21`
 
 - [ ] **Step 1: Remove `intervalHours` and `jitterMinutes` from `DEFAULT_CONFIG`**
@@ -92,6 +94,7 @@ git add src/config.ts && git commit -m "refactor: remove intervalHours and jitte
 ### Task 3: Delete scheduling.ts, Remove schedule Command, Hardcode Jitter
 
 **Files:**
+
 - Delete: `src/scheduling.ts`
 - Modify: `src/cli.ts:1-197`
 
@@ -309,6 +312,7 @@ git add src/scheduling.ts src/cli.ts && git commit -m "feat!: remove schedule co
 ### Task 4: Update Tests
 
 **Files:**
+
 - Modify: `tests/pull.test.ts:19-34`
 - Modify: `tests/config.test.ts:28`
 
@@ -364,6 +368,7 @@ git add tests/pull.test.ts tests/config.test.ts && git commit -m "test: update t
 ### Task 5: Bump Version
 
 **Files:**
+
 - Modify: `package.json`
 
 - [ ] **Step 1: Update version in `package.json`**
@@ -387,6 +392,7 @@ git add package.json && git commit -m "chore: bump version to 0.2.0"
 ### Task 6: Update CLAUDE.md
 
 **Files:**
+
 - Modify: `CLAUDE.md`
 
 - [ ] **Step 1: Update project overview**
@@ -436,6 +442,7 @@ git add CLAUDE.md && git commit -m "docs: update CLAUDE.md for brew services sch
 ### Task 7: Update README.md
 
 **Files:**
+
 - Modify: `README.md`
 
 - [ ] **Step 1: Replace the "Schedule daily sync" section**
@@ -456,6 +463,7 @@ To stop the schedule:
 ```bash
 brew services stop gmaps-sync
 ```
+
 ```
 
 - [ ] **Step 2: Remove `schedule` from commands table**
@@ -463,7 +471,9 @@ brew services stop gmaps-sync
 In `README.md`, delete this row from the commands table (line 65):
 
 ```
+
 | `schedule` | Install or remove the daily sync schedule |
+
 ```
 
 - [ ] **Step 3: Update data layout**
@@ -474,6 +484,7 @@ In `README.md`, replace the data layout section (lines 90-106):
 ## Data layout
 
 ```
+
 ~/.gmaps-sync/
 ├── config.json                          # Optional config overrides
 └── profiles/
@@ -486,6 +497,7 @@ In `README.md`, replace the data layout section (lines 90-106):
             │   ├── ChIJ_abc123.json     # One file per place
             │   └── ...
             └── snapshots/               # Raw API responses (30-day retention)
+
 ```
 
 Service logs are at `$(brew --prefix)/var/log/gmaps-sync/`.
@@ -519,6 +531,7 @@ git add README.md && git commit -m "docs: update README for brew services schedu
 ### Task 8: Update Homebrew Formula
 
 **Files:**
+
 - Modify: `/tmp/homebrew-tap/Formula/gmaps-sync.rb`
 
 - [ ] **Step 1: Push all changes to gmaps-sync and tag v0.2.0**
