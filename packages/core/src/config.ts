@@ -1,6 +1,6 @@
-import { readFileSync, existsSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
+import { join } from "node:path";
 import type { AppConfig } from "./types.js";
 
 export const BASE_DIR = join(homedir(), ".gmaps-sync");

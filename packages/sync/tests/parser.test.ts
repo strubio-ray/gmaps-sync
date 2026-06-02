@@ -1,23 +1,24 @@
-import { describe, it, expect } from "vitest";
-import { parseLists, parsePlaces, stripXssiPrefix, extractSessionToken } from "../src/parser.js";
-import masFixture from "./fixtures/mas-response.json";
+import { describe, expect, it } from "vitest";
+import { extractSessionToken, parseLists, parsePlaces, stripXssiPrefix } from "../src/parser.js";
 import getlistFixture from "./fixtures/getlist-response.json";
+import masFixture from "./fixtures/mas-response.json";
 
 describe("stripXssiPrefix", () => {
   it("strips the XSSI prefix from a response", () => {
-    const input = ")]}'\n{\"data\": true}";
-    expect(stripXssiPrefix(input)).toBe("{\"data\": true}");
+    const input = ')]}\'\n{"data": true}';
+    expect(stripXssiPrefix(input)).toBe('{"data": true}');
   });
 
   it("returns the string unchanged if no prefix", () => {
-    const input = "{\"data\": true}";
-    expect(stripXssiPrefix(input)).toBe("{\"data\": true}");
+    const input = '{"data": true}';
+    expect(stripXssiPrefix(input)).toBe('{"data": true}');
   });
 });
 
 describe("extractSessionToken", () => {
   it("extracts session token from mas request URL", () => {
-    const url = "https://www.google.com/locationhistory/preview/mas?authuser=0&hl=en&gl=us&pb=!2m3!1svNjKacyKCO-zqtsPmJ-8oAY!7e81!15i20393";
+    const url =
+      "https://www.google.com/locationhistory/preview/mas?authuser=0&hl=en&gl=us&pb=!2m3!1svNjKacyKCO-zqtsPmJ-8oAY!7e81!15i20393";
     expect(extractSessionToken(url)).toBe("vNjKacyKCO-zqtsPmJ-8oAY");
   });
 
@@ -44,8 +45,8 @@ describe("parseLists", () => {
     const result = parseLists(JSON.stringify(masFixture));
     const savedPlaces = result.find((l) => l.name === "Saved places");
     expect(savedPlaces).toBeDefined();
-    expect(savedPlaces!.id).toBeNull();
-    expect(savedPlaces!.type).toBe(6);
+    expect(savedPlaces?.id).toBeNull();
+    expect(savedPlaces?.type).toBe(6);
   });
 
   it("throws on invalid structure", () => {
@@ -73,6 +74,6 @@ describe("parsePlaces", () => {
     const result = parsePlaces(JSON.stringify(getlistFixture));
     const ojeman = result.find((p) => p.name === "Eighteen Ten Ojeman");
     expect(ojeman).toBeDefined();
-    expect(ojeman!.address).toBe("");
+    expect(ojeman?.address).toBe("");
   });
 });

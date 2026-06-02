@@ -1,5 +1,5 @@
-import { isNull, eq } from "drizzle-orm";
 import type { Database } from "better-sqlite3";
+import { eq, isNull } from "drizzle-orm";
 import type { Db } from "./db.js";
 import { places } from "./schema.js";
 
@@ -69,9 +69,7 @@ export function buildEmbeddingText(place: EmbeddingInput): string {
     parts.push(place.reviewsText);
   }
 
-  const activeLabels = BOOLEAN_LABELS
-    .filter(([key]) => place[key] === 1)
-    .map(([, label]) => label);
+  const activeLabels = BOOLEAN_LABELS.filter(([key]) => place[key] === 1).map(([, label]) => label);
 
   if (activeLabels.length > 0) {
     parts.push(activeLabels.join(", "));
@@ -96,10 +94,7 @@ export async function embedUnembeddedPlaces(
   sqlite: Database,
   model: EmbeddingModel,
 ): Promise<{ embedded: number; failed: number }> {
-  const unenriched = await db
-    .select()
-    .from(places)
-    .where(isNull(places.embeddedAt));
+  const unenriched = await db.select().from(places).where(isNull(places.embeddedAt));
 
   // Filter to only enriched places (enriched_at IS NOT NULL)
   const toEmbed = unenriched.filter((p) => p.enrichedAt !== null);

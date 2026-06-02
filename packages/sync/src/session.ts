@@ -1,5 +1,5 @@
-import { chromium, type BrowserContext, type Page } from "playwright";
 import type { AppConfig } from "@gmaps/core";
+import { type BrowserContext, chromium, type Page } from "playwright";
 
 const SAVED_PLACES_URL = "https://www.google.com/maps/@0,0,2z/data=!4m2!10m1!1e1";
 const MAS_URL_FRAGMENT = "locationhistory/preview/mas";
@@ -50,10 +50,9 @@ export async function initSession(
   try {
     const page = context.pages()[0] ?? (await context.newPage());
 
-    const masPromise = page.waitForRequest(
-      (req) => req.url().includes(MAS_URL_FRAGMENT),
-      { timeout: 300_000 },
-    );
+    const masPromise = page.waitForRequest((req) => req.url().includes(MAS_URL_FRAGMENT), {
+      timeout: 300_000,
+    });
 
     await page.goto(SAVED_PLACES_URL, {
       waitUntil: "domcontentloaded",
@@ -91,16 +90,20 @@ export async function checkSession(
     context = await launchContext(browserProfileDir, config, config.headless);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return { loggedIn: false, context: null, page: null, error: `Failed to launch browser: ${message}` };
+    return {
+      loggedIn: false,
+      context: null,
+      page: null,
+      error: `Failed to launch browser: ${message}`,
+    };
   }
 
   try {
     const page = context.pages()[0] ?? (await context.newPage());
 
-    const masPromise = page.waitForRequest(
-      (req) => req.url().includes(MAS_URL_FRAGMENT),
-      { timeout: config.sync.navigationTimeoutMs },
-    );
+    const masPromise = page.waitForRequest((req) => req.url().includes(MAS_URL_FRAGMENT), {
+      timeout: config.sync.navigationTimeoutMs,
+    });
 
     await page.goto(SAVED_PLACES_URL, {
       waitUntil: "domcontentloaded",

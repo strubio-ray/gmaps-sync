@@ -9,5 +9,13 @@
     "MD040": false,
     "MD060": false
   },
-  "ignores": ["node_modules", ".astro", "dist", "build", "playwright-report", "test-results", "CHANGELOG.md"]
+  "ignores": [
+    "node_modules",
+    ".astro",
+    "dist",
+    "build",
+    "playwright-report",
+    "test-results",
+    "CHANGELOG.md"
+  ]
 }
