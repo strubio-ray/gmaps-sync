@@ -5,3 +5,34 @@ dist/
 *.tsbuildinfo
 .env
 .claude/settings.local.json
+
+# >>> rubio-standards >>>
+# Managed by rubio-standards Copier template. Do not edit between sentinels —
+# `scripts/merge-gitignore.sh` rewrites this block on every `copier copy/update`.
+.DS_Store
+.envrc.local
+*.log
+node_modules/
+dist/
+build/
+coverage/
+reports/
+
+# .claude deny-block (template/v1.29.0): ignore the whole .claude/ dir EXCEPT
+# the committed cloud carrier + hooks/commands/agents. CONTENTS form (.claude/*)
+# is mandatory — a dir-form `.claude/` would make the `!` negations silent
+# no-ops (git cannot re-include a path under an ignored DIRECTORY). Keeps
+# settings.json + hooks/commands/agents trackable while ignoring
+# settings.local.json and other local-only .claude/ state.
+.claude/*
+!.claude/settings.json
+!.claude/hooks/
+!.claude/commands/
+!.claude/agents/
+
+# Per-archetype
+.next/
+.vite/
+.turbo/
+.tsbuildinfo
+# <<< rubio-standards <<<
